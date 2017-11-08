@@ -2,7 +2,7 @@
 #include "Window.h"
 #include "Graph.h"
 #include "FL/Fl_JPEG_Image.H"
-
+#include "fifteen_game.h"
 
 int main() {
 	try {
