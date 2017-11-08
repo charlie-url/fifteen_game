@@ -7,12 +7,16 @@
 struct Splash_screen : Graph_lib::Window {
 	Splash_screen(Point xy, int w, int h, const string& title)
 		:Window{ xy,w,h,title },
-		play_button{ Point{ 360-64,360-32 }, 128, 64, "Play",  [](Address, Address pw) { reference_to<Splash_screen>(pw).play(); } },
 		show_instructions{ Point{ 360 - 64,360 + 32 }, 128, 64, "Instuctions",  [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); } },
+		play_button{ Point{ 360 - 64,360 - 32 }, 128, 64, "Play",  [](Address, Address pw) { reference_to<Splash_screen>(pw).play(); } },
 		button_pushed{ false }
 	{
 		attach(play_button);
 		attach(show_instructions);
+		attach(game_name);
+		attach(team_info);
+		attach(team_roster);
+		attach(instructions);
 	}
 	void wait_for_button() {
 		while (!button_pushed) {
@@ -23,11 +27,11 @@ struct Splash_screen : Graph_lib::Window {
 	}
 
 private:
-	string game_name = "Fifteen Game";
-	string team_info = "Team 41: TeamName";
-	string team_roster = "Charles Wong/nSavannah Yu/nCindy Zhang/nEric Zhang";
-	string instructions = "Instructions:/n/t1. Do/n/t2.Something";
-	Button show_instructions;
+	Text game_name = Text{ Point{100,100}, "Fifteen Game" };
+	Text team_info = Text{ Point{ 100,150 }, "Team 41: TeamName" };
+	Text team_roster = Text{ Point{ 100,200 }, "Charles Wong Savannah Yu Cindy Zhang Eric Zhang" };
+	Text instructions = Text{ Point{ 100,250 }, "Instructions:1. Do 2.Something" };
+	Button show_instructions;// = Button{ Point{ 360 - 64,360 + 32 }, 128, 64, "Instuctions",  [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); } };
 	Button play_button;
 	bool button_pushed;
 
