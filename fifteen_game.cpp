@@ -3,9 +3,39 @@
 #include "Graph.h"
 #include "FL/Fl_JPEG_Image.H"
 #include "Simple_window.h"
+
+struct Splash_screen : Graph_lib::Window {
+	Splash_screen(Point xy, int w, int h, const string& title)
+		:Window{ xy,w,h,title },
+		play_button{ Point{ 360-64,360-32 }, 128, 64, "Play",  [](Address, Address pw) { reference_to<Splash_screen>(pw).play(); } },
+		button_pushed{ false }
+	{
+		attach(play_button);
+
+	}
+	void wait_for_button() {
+		while (!button_pushed) {
+			Fl::wait();
+		}
+		button_pushed = false;
+		play();
+	}
+
+private:
+
+	Button play_button;
+	bool button_pushed;
+
+	void play() {
+		cout << "[next screen]" << endl;
+		Fl::redraw();
+	}
+};
+
+
 int main() {
 	try {
-		Simple_window splash(Point(0, 0), 720, 720, "Splash Screen");
+		Splash_screen splash(Point(0, 0), 720, 720, "Splash Screen");
 		splash.wait_for_button();
 
 
