@@ -2,12 +2,11 @@
 #include "Window.h"
 #include "Graph.h"
 #include "FL/Fl_JPEG_Image.H"
-#include "fifteen_game.h"
-
+#include "Simple_window.h"
 int main() {
 	try {
-		
-
+		Simple_window splash(Point(0, 0), 720, 720, "Splash Screen");
+		splash.wait_for_button();
 
 
 
