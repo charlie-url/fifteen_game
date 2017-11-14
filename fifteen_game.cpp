@@ -87,15 +87,13 @@ private:
 		attach(third);
 		attach(fourth);
 		attach(fifth);
-<<<<<<< HEAD
-		vector<int> numbers = {0, 15, 3, 4, 12, 14, 7, 8, 11, 10, 6, 5, 13, 9, 2, 1};
+		vector<int> numbers = {1, 5, 9, 13, 2, 6, 10, 14, 3, 12, 0, 8, 4, 7, 15, 11};
 
 		Vector_ref<Button> buttons;
 		int numIndex = 0;
 		for(int x = 100; x < 500; x+=100) {
 			for(int y = 200; y < 600; y+=100) {
-<<<<<<< HEAD
-				if(numIndex == 0) {
+				if(numIndex == 10) {
 					buttons.push_back(new Button {Point(x,y), 100, 100, "", [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); }});
 				} else {
 					buttons.push_back(new Button {Point(x,y), 100, 100, to_string(numbers.at(numIndex)), [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); }});
@@ -121,15 +119,13 @@ private:
 		attach(third);
 		attach(fourth);
 		attach(fifth);
-<<<<<<< HEAD
-		vector<int> numbers = {2, 10, 0, 6, 5, 7, 13, 9, 1, 3, 11, 14, 4, 8, 12, 15};
+		vector<int> numbers = {1, 5, 9, 13, 6, 0, 10, 15, 3, 2, 14, 12, 4, 11, 7, 8};
 
 		Vector_ref<Button> buttons;
 		int numIndex = 0;
 		for(int x = 100; x < 500; x+=100) {
 			for(int y = 200; y < 600; y+=100) {
-<<<<<<< HEAD
-				if(numIndex == 2) {
+				if(numIndex == 5) {
 					buttons.push_back(new Button {Point(x,y), 100, 100, "", [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); }});
 				} else {
 					buttons.push_back(new Button {Point(x,y), 100, 100, to_string(numbers.at(numIndex)), [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); }});
