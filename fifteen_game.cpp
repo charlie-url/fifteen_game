@@ -5,15 +5,26 @@
 #include "Simple_window.h"
 
 struct Splash_screen : Graph_lib::Window {
+
+   Button quit_button;
+   Button show_instructions;
+   Vector_ref<Button> buttons;
+   In_box username;
+
 	Splash_screen(Point xy, int w, int h, const string& title)
 		:Window{ xy,w,h,title },
+		
+		quit_button{Point{70,0}, 70, 20, "Quit",[](Address, Address pw) {reference_to<Splash_screen>(pw).quit();} },	
 		show_instructions{ Point{ 360 - 64,360 + 32 }, 128, 64, "Instuctions",  [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); } },
 		play_button{ Point{ 360 - 64,360 - 32 }, 128, 64, "Start",  [](Address, Address pw) { reference_to<Splash_screen>(pw).play(); } },
 		ten_button {Point(200,50), 320, 100, "10", [](Address, Address pw) {reference_to<Splash_screen>(pw).ten_game();} },
 		twenty_button {Point(200,150), 320, 100, "20", [](Address, Address pw) {reference_to<Splash_screen>(pw).twenty_game();} },
 		forty_button {Point(200,250), 320, 100, "40", [](Address, Address pw) {reference_to<Splash_screen>(pw).forty_game();} },
 		eighty_button {Point(200,350), 320, 100, "80", [](Address, Address pw) {reference_to<Splash_screen>(pw).eighty_game();} },
-		button_pushed{ false }
+		button_pushed{ false },
+        username(Point(x_max()-310,0), 70, 30, "Enter initial")
+
+  
 	{
 		attach(play_button);
 		attach(show_instructions);
@@ -21,7 +32,10 @@ struct Splash_screen : Graph_lib::Window {
 		attach(team_info);
 		attach(team_roster);
 		attach(instructions);
+		attach(quit_button);
+		attach(username);
 	}
+	
 	void wait_for_button() {
 		while (!button_pushed) {
 			Fl::wait();
@@ -29,6 +43,7 @@ struct Splash_screen : Graph_lib::Window {
 		button_pushed = false;
 		play();
 	}
+
 
 private:
 	Text game_name = Text{ Point{100,100}, "Fifteen Game" };
@@ -45,13 +60,17 @@ private:
 	Text third = Text{Point{550,350}, "3."};
 	Text fourth = Text{Point{550,400}, "4."};
 	Text fifth = Text{Point{550,450}, "5."};
-	Button show_instructions;// = Button{ Point{ 360 - 64,360 + 32 }, 128, 64, "Instuctions",  [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); } };
+//	Button show_instructions;// = Button{ Point{ 360 - 64,360 + 32 }, 128, 64, "Instuctions",  [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); } };
 	Button play_button;
 	Button ten_button;
 	Button twenty_button;
 	Button forty_button;
 	Button eighty_button;
+	//Button quit_button;
+
 	bool button_pushed;
+
+   
 
 	void play() {
 		cout << "[next screen]" << endl;
@@ -69,10 +88,21 @@ private:
 		attach(eighty_button);
 		Fl::redraw();
 	}
+
+
+	void quit()
+    {
+    hide(); 
+   
+    }
+    
 	void instruct() {
 		cout << "[instructions]" << endl;
+        
+
 		Fl::redraw();
 	}
+
 	void ten_game() {
 		cout << "[ten game]" << endl;
 		detach(ten_button); //detach all buttons
@@ -87,13 +117,13 @@ private:
 		attach(third);
 		attach(fourth);
 		attach(fifth);
-		vector<int> numbers = {0, 15, 3, 4, 12, 14, 7, 8, 11, 10, 6, 5, 13, 9, 2, 1};
+		vector<int> numbers = {1, 5, 9, 13, 2, 6, 10, 14, 3, 12, 0, 8, 4, 7, 15, 11};
 
-		Vector_ref<Button> buttons;
+	//	Vector_ref<Button> buttons;
 		int numIndex = 0;
 		for(int x = 100; x < 500; x+=100) {
 			for(int y = 200; y < 600; y+=100) {
-				if(numIndex == 0) {
+				if(numIndex == 10) {
 					buttons.push_back(new Button {Point(x,y), 100, 100, "", [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); }});
 				} else {
 					buttons.push_back(new Button {Point(x,y), 100, 100, to_string(numbers.at(numIndex)), [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); }});
@@ -105,6 +135,7 @@ private:
 
 		Fl::redraw();
 	}
+
 	void twenty_game() {
 		cout << "[twenty game]" << endl;
 		detach(ten_button); //detach all buttons
@@ -119,13 +150,13 @@ private:
 		attach(third);
 		attach(fourth);
 		attach(fifth);
-		vector<int> numbers = {2, 10, 0, 6, 5, 7, 13, 9, 1, 3, 11, 14, 4, 8, 12, 15};
+		vector<int> numbers = {1, 5, 9, 13, 6, 0, 10, 15, 3, 2, 14, 12, 4, 11, 7, 8};
 
-		Vector_ref<Button> buttons;
+//		Vector_ref<Button> buttons;
 		int numIndex = 0;
 		for(int x = 100; x < 500; x+=100) {
 			for(int y = 200; y < 600; y+=100) {
-				if(numIndex == 2) {
+				if(numIndex == 5) {
 					buttons.push_back(new Button {Point(x,y), 100, 100, "", [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); }});
 				} else {
 					buttons.push_back(new Button {Point(x,y), 100, 100, to_string(numbers.at(numIndex)), [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); }});
@@ -153,7 +184,7 @@ private:
 		attach(fifth);
 		vector<int> numbers = {6, 10, 9, 14, 5, 13, 15, 12, 11, 2, 7, 8, 4, 1, 3, 0};
 
-		Vector_ref<Button> buttons;
+//		Vector_ref<Button> buttons;
 		int numIndex = 0;
 		for(int x = 100; x < 500; x+=100) {
 			for(int y = 200; y < 600; y+=100) {
@@ -166,8 +197,17 @@ private:
 				attach(buttons[buttons.size()-1]);
 			}
 		}
+/*
+		for(int i=0;i<numbers.size();i++){
+         if(numbers[i]==0){
+          int x=i/4;
+          int y=i%4;
+          
+         }
 
-		Fl::redraw();
+		}
+*/      Fl:: redraw();
+
 	}
 	void eighty_game() {
 		cout << "[eighty game]" << endl;
@@ -185,7 +225,7 @@ private:
 		attach(fifth);
 		vector<int> numbers = {0, 15, 3, 4, 12, 14, 7, 8, 11, 10, 6, 5, 13, 9, 2, 1};
 
-		Vector_ref<Button> buttons;
+	//	Vector_ref<Button> buttons;
 		int numIndex = 0;
 		for(int x = 100; x < 500; x+=100) {
 			for(int y = 200; y < 600; y+=100) {
@@ -204,11 +244,15 @@ private:
 };
 
 
+
+
+
+
 int main() {
 	try {
 		Splash_screen splash(Point(0, 0), 720, 720, "Splash Screen");
-		splash.wait_for_button();
-
+		//splash.wait_for_button();
+         return gui_main(); 
 
 
 	}
