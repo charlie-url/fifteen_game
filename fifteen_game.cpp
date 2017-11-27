@@ -78,7 +78,7 @@ private:
 
 
 
-
+	/*
 	void ten_game() {
 		cout << "[ten game]" << endl;
 		detach(ten_button); //detach all buttons
@@ -111,7 +111,7 @@ private:
 		}
 
 		Fl::redraw();
-	}
+	}*/
 
 };
 
@@ -136,7 +136,7 @@ struct Level_select : Graph_lib::Window {
 			Fl::wait();
 		}
 		button_pushed = false;
-		play();
+		//play();
 	}
 
 	void quit()
@@ -144,7 +144,10 @@ struct Level_select : Graph_lib::Window {
 		hide();
 	}
 
-	private
+	void start_game(int diff) {
+		return;
+	}
+private:
 
 	Button quit_button;
 	Button ten_button;
