@@ -25,6 +25,7 @@ struct Game_screen : Graph_lib::Window {
 
 	void quit() {
 		button_pushed = true;
+		make_current();
 		hide();
 	}
 
@@ -121,6 +122,7 @@ struct Level_select : Graph_lib::Window {
 	void quit()
 	{
 		button_pushed = true;
+		make_current();
 		hide();
 	}
 
@@ -128,7 +130,7 @@ struct Level_select : Graph_lib::Window {
 		button_pushed = true;
 		cout << "[game screen]" << endl;
 		cout << diff << endl;
-		hide();
+		quit();
 		Game_screen game(Point(0, 0), 720, 720, "Game Screen", diff);
 		game.wait_for_button();
 	}
@@ -179,14 +181,13 @@ struct Splash_screen : Graph_lib::Window {
 			Fl::wait();
 		}
 		button_pushed = false;
-		view_levels();
 	}
 
 
 	void view_levels() {
 		cout << "[level screen]" << endl;
 		cout << username.get_string() << endl;
-		hide();
+		quit();
 		Level_select levels(Point(0, 0), 720, 720, "Level Select", username.get_string());
 		levels.wait_for_button();
 	}
@@ -194,6 +195,8 @@ struct Splash_screen : Graph_lib::Window {
 
 	void quit()
 	{
+		button_pushed = true;
+		make_current();
 		hide();
 	}
 
@@ -225,7 +228,7 @@ int main() {
 	try {
 		Splash_screen splash(Point(0, 0), 720, 720, "Splash Screen");
 		splash.wait_for_button();
-
+		return 0;
 
 	}
 	catch (exception& e) {
