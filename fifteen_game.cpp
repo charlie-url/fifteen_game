@@ -4,6 +4,33 @@
 #include "FL/Fl_JPEG_Image.H"
 #include "lib/Simple_window.h"
 
+struct Tile_button : public Button {
+	Tile_button(int x_coord, int y_coord, int number)
+		:Button{ Point(100 + (100 * x_coord),200 + (100 * y_coord)),100, 100, to_string(number), [](Address, Address pw) { reference_to<Tile_button>(pw).On_click();} },
+		x_coord{x_coord},
+		y_coord{y_coord},
+			number{number}
+	{}
+
+	void On_click() {
+		cout << number << endl;
+
+	}
+
+	int manhattan() {
+		//do: calculate position from value
+		//do: calculate y difference
+		//do: calculate x difference
+		return 0;
+	}
+
+
+private:
+	int x_coord;
+	int y_coord;
+	int number;
+};
+
 struct Project_window : Graph_lib::Window {
 
 	Project_window(Point xy, int w, int h, const string& title)
@@ -31,21 +58,25 @@ struct Project_window : Graph_lib::Window {
 	bool button_pushed;
 };
 
-
 struct Game_screen : public Project_window {
 
 	Game_screen(Point xy, int w, int h, const string& title, int difficulty)
 		:Project_window{ xy,w,h,title },
 		difficulty{ difficulty }
 	{
-		attach(quit_button);
+		attach(leaderboard);
+		attach(first);
+		attach(second);
+		attach(third);
+		attach(fourth);
+		attach(fifth);
 		game_init();
 	}
 
 
 
-	void tile() {
-		cout << "[tile]" << endl;
+	void tile(int v) {
+		cout << "[tile]" << v << endl;
 	}
 
 	void manhattan() {
@@ -53,16 +84,8 @@ struct Game_screen : public Project_window {
 	}
 
 	void game_init() {
-		cout << "[game]" << endl;
 
-		attach(leaderboard);
-		attach(first);
-		attach(second);
-		attach(third);
-		attach(fourth);
-		attach(fifth);
-
-		switch (difficulty) {
+		switch (difficulty) {//populate vector<int> numbers
 		case 10: numbers = ten_nums;
 			break;
 		case 20: numbers = twenty_nums;
@@ -74,25 +97,25 @@ struct Game_screen : public Project_window {
 		default: cout << "error in choosing difficulty";
 			break;
 		}
-
+		/*
 		int numIndex = 0;
 		for (int x = 100; x < 500; x += 100) {
 			for (int y = 200; y < 600; y += 100) {
 				buttons.push_back(new Button{ Point(x,y), 100, 100, to_string(numbers.at(numIndex)), [](Address, Address pw) { reference_to<Game_screen>(pw).tile(); } });
+				tiles.push_back(new Tile(*buttons[buttons.size() - 1], (x / 100) - 1, (y / 100) - 2, numbers.at(numIndex)));
 				numIndex++;
 				attach(buttons[buttons.size() - 1]);
 			}
 			Fl::redraw();
 		}
-
+		*/
 	}
-
 
 private:
 
 	int difficulty;
 
-	Vector_ref<Button> buttons;
+	Vector<Tile_button> tiles;
 	vector<int> numbers;
 	vector<int> ten_nums = { 1, 5, 9, 13, 2, 6, 10, 14, 3, 12, 0, 8, 4, 7, 15, 11 };
 	vector<int> twenty_nums = { 1, 5, 9, 13, 6, 0, 10, 15, 3, 2, 14, 12, 4, 11, 7, 8 };
