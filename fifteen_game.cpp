@@ -36,9 +36,15 @@ struct Tile_button : public Button {
 	}
 	int manhattan() {
 		//do: calculate position from value
-		//do: calculate y difference
-		//do: calculate x difference
-		return 0;
+		int ideal_x = (number-1) % 4;
+		int ideal_y = (number-1) / 4;
+		if(number==0){//blank in bottom right
+			ideal_x = 3;
+			ideal_y = 3;
+		}
+		int dy = abs(y_coord - ideal_y);
+		int dx = abs(x_coord - ideal_x);
+		return (dx+dy);
 	}
 
 
@@ -103,6 +109,7 @@ struct Game_screen : public Project_window {
 		cout << "The tile you clicked is " << tile_num << endl;
 		cout << "Its row is " << tiles[place].y() << endl;
 		cout << "Its col is " << tiles[place].x() << endl;
+		cout << "Manhattan distance is " << tiles[place].manhattan() << endl;
 		swap(place);
 	}
 
