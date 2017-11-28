@@ -5,17 +5,13 @@
 #include "lib/Simple_window.h"
 
 struct Tile_button : public Button {
-	Tile_button(int x_coord, int y_coord, int number)
-		:Button{ Point(100 + (100 * x_coord),200 + (100 * y_coord)),100, 100, to_string(number), [](Address, Address pw) { reference_to<Tile_button>(pw).On_click();} },
+	Tile_button(int x_coord, int y_coord, int number, Callback cb)
+		:Button{ Point(100 + (100 * x_coord),200 + (100 * y_coord)),100, 100, to_string(number), cb},
 		x_coord{x_coord},
 		y_coord{y_coord},
 			number{number}
 	{}
 
-	void On_click() {
-		cout << number << endl;
-
-	}
 
 	int manhattan() {
 		//do: calculate position from value
@@ -75,8 +71,8 @@ struct Game_screen : public Project_window {
 
 
 
-	void tile(int v) {
-		cout << "[tile]" << v << endl;
+	void tile() {
+		cout << "[tile]" << endl;
 	}
 
 	void manhattan() {
@@ -101,7 +97,7 @@ struct Game_screen : public Project_window {
 		int numIndex = 0;
 		for (int y = 0; y < 4; ++y) {
 			for (int x = 0; x < 4; ++x) {
-				tiles.push_back(new Tile_button(x, y, numbers.at(numIndex)));
+				tiles.push_back(new Tile_button(x, y, numbers.at(numIndex), [](Address, Address pw) { reference_to<Game_screen>(pw).tile();}));
 				cout << numIndex << "-" << numbers.at(numIndex) << endl;
 				attach(tiles[tiles.size()-1]);
 				++numIndex;
