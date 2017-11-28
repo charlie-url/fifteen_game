@@ -4,6 +4,14 @@
 #include "FL/Fl_JPEG_Image.H"
 #include "lib/Simple_window.h"
 
+
+struct player_score {
+	//for task 3 and 6, assigns two different values to 1 element in a vector made of player_scores
+	string name;
+	int score;
+};
+
+
 struct Tile_button : public Button {
 	Tile_button(int x_coord, int y_coord, int number, Callback cb)
 		:Button{ Point(100 + (100 * x_coord),200 + (100 * y_coord)),100, 100, to_string(number), cb},
@@ -96,7 +104,47 @@ struct Game_screen : public Project_window {
 		game_init();
 	}
 
+	vector<string> leaderboard()
+	{
+		vector<player_score> original_scores;
+		ifstream Scores;
+		switch (difficulty) {
+		case 10:
+			Scores.open("Scores_list_10.txt");
+			break;
+		case 20:
+			Scores.open("Scores_list_20.txt");
+			break;
+		case 40:
+			Scores.open("Scores_list_40.txt");
+			break;
+		case 80:
+			Scores.open("Scores_list_80.txt");
+			break;
+		default:
+			cout << "Error with selecting difficulty, cannot display scores" << endl;
+		}
+		if (Scores.fail()) {
+			cerr << "Error Opening File" << endl;
+			keep_window_open();
+			exit(1);
+		}
 
+		player_score set_scores;
+		while (Scores >> set_scores.name >> set_scores.score) {
+			original_scores.push_back(set_scores);
+		}
+
+		Scores.close();//can put into a separate file later
+		vector<string>top_5_40;
+		for (int i = 0; i < 5; ++i) {
+			string combined_name_score = original_scores_40[i].name + "         " + to_string(original_scores_40[i].score);
+			top_5_40.push_back(combined_name_score);
+		}
+
+		return top_5_40;
+
+	}
 
 	void tile(int tile_num) {
 		int place = 0;
