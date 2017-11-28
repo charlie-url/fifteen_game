@@ -1,8 +1,8 @@
-#include "std_lib_facilities_5.h"
-#include "Window.h"
-#include "Graph.h"
+#include "lib/std_lib_facilities_5.h"
+#include "lib/Window.h"
+#include "lib/Graph.h"
 #include "FL/Fl_JPEG_Image.H"
-#include "Simple_window.h"
+#include "lib/Simple_window.h"
 
 struct Project_window : Graph_lib::Window {
 
