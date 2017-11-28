@@ -95,12 +95,14 @@ struct Game_screen : public Project_window {
 		:Project_window{ xy,w,h,title },
 		difficulty{ difficulty }
 	{
+		moves_remain = difficulty;
 		attach(leader_title);
 		attach(first);
 		attach(second);
 		attach(third);
 		attach(fourth);
 		attach(fifth);
+		attach(moves);
 		game_init();
 	}
 
@@ -187,6 +189,8 @@ struct Game_screen : public Project_window {
 			tiles[empty].set_y(tiles[val].y());
 			tiles[val].set_x(temp_x);
 			tiles[val].set_y(temp_y);
+			--moves_remain;
+			moves.set_label(to_string(moves_remain));
 		}
 	}
 
@@ -239,7 +243,7 @@ struct Game_screen : public Project_window {
 	}
 
 private:
-
+	int moves_remain;
 	int difficulty;
 	Vector_ref<Tile_button> tile_bag;
 	Vector_ref<Tile_button> tiles;
@@ -250,6 +254,7 @@ private:
 	vector<int> forty_nums = { 6, 10, 9, 14, 5, 13, 15, 12, 11, 2, 7, 8, 4, 1, 3, 0 };
 	vector<int> eighty_nums = { 0, 15, 3, 4, 12, 14, 7, 8, 11, 10, 6, 5, 13, 9, 2, 1 };
 
+	Text moves = Text{ Point{360,128}, "#" };
 	Text leader_title = Text{ Point{ 550,200 }, "Leaderboard" };
 	Text first = Text{ Point{ 550,250 }, leaderboard()[0] };
 	Text second = Text{ Point{ 550,300 }, leaderboard()[1] };
