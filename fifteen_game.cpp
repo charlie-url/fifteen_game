@@ -12,7 +12,16 @@ struct Tile_button : public Button {
 			number{number}
 	{}
 
+	int x() {
+		return x_coord;
+	}
 
+	int y() {
+		return y_coord;
+	}
+	int val() {
+		return number;
+	}
 	int manhattan() {
 		//do: calculate position from value
 		//do: calculate y difference
@@ -71,15 +80,13 @@ struct Game_screen : public Project_window {
 
 
 
-	void tile() {
-		cout << "[tile]" << endl;
+	void tile(int val) {
+		cout << "[tile# " << val << " ][" << tiles[val].val() << "]"<< endl;
+		
 	}
 
-	void manhattan() {
-		return;
-	}
 
-	void game_init() {
+	void load_values() {
 
 		switch (difficulty) {//populate vector<int> numbers
 		case 10: numbers = ten_nums;
@@ -93,18 +100,47 @@ struct Game_screen : public Project_window {
 		default: cout << "error in choosing difficulty";
 			break;
 		}
-		
+	}
+
+	//version 1 of game_init below, can implement if lambda expression capture is used
+	//manually enter values in game_init() for now.
+		/*
 		int numIndex = 0;
 		for (int y = 0; y < 4; ++y) {
 			for (int x = 0; x < 4; ++x) {
-				tiles.push_back(new Tile_button(x, y, numbers.at(numIndex), [](Address, Address pw) { reference_to<Game_screen>(pw).tile();}));
+				int val = numIndex;
+				tiles.push_back(new Tile_button(x, y, numbers.at(numIndex), [val](Address, Address pw) { reference_to<Game_screen>(pw).tile(val);}));
 				cout << numIndex << "-" << numbers.at(numIndex) << endl;
 				attach(tiles[tiles.size()-1]);
 				++numIndex;
 			}
 			Fl::redraw();
+		}*/
+
+
+	void game_init(){
+		load_values();
+
+		tiles.push_back(new Tile_button{ 0,0,numbers.at(0),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(0);} });
+		tiles.push_back(new Tile_button{ 1,0,numbers.at(1),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(1);} });
+		tiles.push_back(new Tile_button{ 2,0,numbers.at(2),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(2);} });
+		tiles.push_back(new Tile_button{ 3,0,numbers.at(3),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(3);} });
+		tiles.push_back(new Tile_button{ 0,1,numbers.at(4),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(4);} });
+		tiles.push_back(new Tile_button{ 1,1,numbers.at(5),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(5);} });
+		tiles.push_back(new Tile_button{ 2,1,numbers.at(6),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(6);} });
+		tiles.push_back(new Tile_button{ 3,1,numbers.at(7),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(7);} });
+		tiles.push_back(new Tile_button{ 0,2,numbers.at(8),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(8);} });
+		tiles.push_back(new Tile_button{ 1,2,numbers.at(9),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(9);} });
+		tiles.push_back(new Tile_button{ 2,2,numbers.at(10),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(10);} });
+		tiles.push_back(new Tile_button{ 3,2,numbers.at(11),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(11);} });
+		tiles.push_back(new Tile_button{ 0,3,numbers.at(12),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(12);} });
+		tiles.push_back(new Tile_button{ 1,3,numbers.at(13),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(13);} });
+		tiles.push_back(new Tile_button{ 2,3,numbers.at(14),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(14);} });
+		tiles.push_back(new Tile_button{ 3,3,numbers.at(15),[](Address,Address pw) {reference_to<Game_screen>(pw).tile(15);} });
+
+		for (int i = 0; i < tiles.size(); ++i) {
+			attach(tiles[i]);
 		}
-		
 	}
 
 private:
