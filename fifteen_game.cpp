@@ -4,6 +4,14 @@
 #include "FL/Fl_JPEG_Image.H"
 #include "lib/Simple_window.h"
 
+
+struct player_score {
+	//for task 3 and 6, assigns two different values to 1 element in a vector made of player_scores
+	string name;
+	int score;
+};
+
+
 struct Tile_button : public Button {
 	Tile_button(int x_coord, int y_coord, int number, Callback cb)
 		:Button{ Point(100 + (100 * x_coord),200 + (100 * y_coord)),100, 100, to_string(number), cb},
@@ -87,7 +95,7 @@ struct Game_screen : public Project_window {
 		:Project_window{ xy,w,h,title },
 		difficulty{ difficulty }
 	{
-		attach(leaderboard);
+		attach(leader_title);
 		attach(first);
 		attach(second);
 		attach(third);
@@ -96,7 +104,46 @@ struct Game_screen : public Project_window {
 		game_init();
 	}
 
+	vector<string> leaderboard()
+	{
+		vector<player_score> original_scores;
+		ifstream Scores;
+		switch (difficulty) {
+		case 10:
+			Scores.open("usr/Scores_list_10.txt");
+			break;
+		case 20:
+			Scores.open("usr/Scores_list_20.txt");
+			break;
+		case 40:
+			Scores.open("usr/Scores_list_40.txt");
+			break;
+		case 80:
+			Scores.open("usr/Scores_list_80.txt");
+			break;
+		default:
+			cout << "Error with selecting difficulty, cannot display scores" << endl;
+		}
+		if (Scores.fail()) {
+			cerr << "Error Opening File" << endl;
+			keep_window_open();
+			exit(1);
+		}
 
+		player_score set_scores;
+		while (Scores >> set_scores.name >> set_scores.score) {
+			original_scores.push_back(set_scores);
+		}
+		Scores.close();//can put into a separate file later
+		vector<string>top_5;
+		for (int i = 0; i < 5; ++i) {
+			string combined_name_score = original_scores[i].name + "         " + to_string(original_scores[i].score);
+			top_5.push_back(combined_name_score);
+		}
+
+		return top_5;
+
+	}
 
 	void tile(int tile_num) {
 		int place = 0;
@@ -203,12 +250,12 @@ private:
 	vector<int> forty_nums = { 6, 10, 9, 14, 5, 13, 15, 12, 11, 2, 7, 8, 4, 1, 3, 0 };
 	vector<int> eighty_nums = { 0, 15, 3, 4, 12, 14, 7, 8, 11, 10, 6, 5, 13, 9, 2, 1 };
 
-	Text leaderboard = Text{ Point{ 550,200 }, "Leaderboard" };
-	Text first = Text{ Point{ 550,250 }, "1." };
-	Text second = Text{ Point{ 550,300 }, "2." };
-	Text third = Text{ Point{ 550,350 }, "3." };
-	Text fourth = Text{ Point{ 550,400 }, "4." };
-	Text fifth = Text{ Point{ 550,450 }, "5." };
+	Text leader_title = Text{ Point{ 550,200 }, "Leaderboard" };
+	Text first = Text{ Point{ 550,250 }, leaderboard()[0] };
+	Text second = Text{ Point{ 550,300 }, leaderboard()[1] };
+	Text third = Text{ Point{ 550,350 }, leaderboard()[2] };
+	Text fourth = Text{ Point{ 550,400 }, leaderboard()[3] };
+	Text fifth = Text{ Point{ 550,450 }, leaderboard()[4] };
 };
 
 struct Level_select : public Project_window {
