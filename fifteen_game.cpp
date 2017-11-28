@@ -97,25 +97,25 @@ struct Game_screen : public Project_window {
 		default: cout << "error in choosing difficulty";
 			break;
 		}
-		/*
+		
 		int numIndex = 0;
-		for (int x = 100; x < 500; x += 100) {
-			for (int y = 200; y < 600; y += 100) {
-				buttons.push_back(new Button{ Point(x,y), 100, 100, to_string(numbers.at(numIndex)), [](Address, Address pw) { reference_to<Game_screen>(pw).tile(); } });
-				tiles.push_back(new Tile(*buttons[buttons.size() - 1], (x / 100) - 1, (y / 100) - 2, numbers.at(numIndex)));
-				numIndex++;
-				attach(buttons[buttons.size() - 1]);
+		for (int y = 0; y < 4; ++y) {
+			for (int x = 0; x < 4; ++x) {
+				tiles.push_back(new Tile_button(x, y, numbers.at(numIndex)));
+				cout << numIndex << "-" << numbers.at(numIndex) << endl;
+				attach(tiles[tiles.size()-1]);
+				++numIndex;
 			}
 			Fl::redraw();
 		}
-		*/
+		
 	}
 
 private:
 
 	int difficulty;
 
-	Vector<Tile_button> tiles;
+	Vector_ref<Tile_button> tiles;
 	vector<int> numbers;
 	vector<int> ten_nums = { 1, 5, 9, 13, 2, 6, 10, 14, 3, 12, 0, 8, 4, 7, 15, 11 };
 	vector<int> twenty_nums = { 1, 5, 9, 13, 6, 0, 10, 15, 3, 2, 14, 12, 4, 11, 7, 8 };
