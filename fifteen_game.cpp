@@ -111,6 +111,7 @@ private:
 			attach(twenty_button);
 			attach(forty_button);
 			attach(eighty_button);
+			attach(username);
 		}
 
 		void wait_for_button() {
@@ -148,10 +149,8 @@ private:
 		Text difficulty_40 = Text{ Point{ 100,100 }, "Difficulty 40" };
 		Text difficulty_80 = Text{ Point{ 100,100 }, "Difficulty 80" };
 
-		Text username;
-
 		bool button_pushed;
-
+		Text username;
 
 	};
 
@@ -214,10 +213,10 @@ private:
 		Button quit_button;
 		Button show_instructions;
 		Button play_button;
-
+		bool button_pushed;
 		In_box username;
 
-		bool button_pushed;
+		
 
 	};
 
