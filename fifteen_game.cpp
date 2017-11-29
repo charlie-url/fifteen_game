@@ -118,7 +118,7 @@ struct Game_screen : public Project_window {
 		game_init();
 	}
 
-	void pseudo_move(int val) {
+	void pseudo_swap(int val) {
 		//moves, but does not redraw or decrement counters
 		int empty = 0;//location of empty tile
 		int temp_x = 0;
@@ -148,8 +148,47 @@ struct Game_screen : public Project_window {
 		}
 	}
 
+	int locate_tile(int x, int y) {
+		//returns the location in the array of the tile at (x,y)
+		for (int i = 0; i < tiles.size(); ++i) {
+			if (tiles[i].x() == x && tiles[i].y() == y) {
+				return i;
+			}
+		}
+	}
+
+	int locate_tile(int tile_number) {
+		int loc = 0;//location of empty tile in the array
+		for (int i = 0; i < 16; ++i) {
+			if (tiles[i].val() == 0) {
+				return i;
+			}
+		}
+	}
+
 	void hint() {
-		//case of upwards move
+		int empty = 0;//location of empty tile in the array
+		int empty_x = 0;
+		int empty_y = 0;
+		for (int i = 0; i < 16; ++i) {
+			if (tiles[i].val() == 0) {
+				empty = i;
+				empty_x = tiles[i].x();
+				empty_y = tiles[i].y();
+			}
+		}
+		int min_error = 160;//more than possible on one board
+		int curr_error = 0;//error of current layout
+		//case of upwards move (row 1 to 3)
+		if (empty_x > 0) {
+			curr_error = 0;
+			pseudo_swap(locate_tile(empty_x, empty_y - 1));
+			for (int i = 0; i < tiles.size(); ++i) {
+				curr_error += tiles[i].manhattan();
+			}
+			min_error = min(min_error, curr_error);
+			pseudo_swap(empty);//reset board
+		}
 		//case of downwards move
 		//case of left move
 		//case of right move
