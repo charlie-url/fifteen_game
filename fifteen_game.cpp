@@ -144,7 +144,7 @@ struct Game_screen : public Project_window {
 			temp_y = tiles[empty].y();
 			tiles[empty].pseudo_set_xy(tiles[val].x(), tiles[val].y());
 			tiles[val].pseudo_set_xy(temp_x, temp_y);
-			cout << "\tinvisible move of tiles" << endl;
+			//cout << "\tinvisible move of tiles" << endl;
 		}
 	}
 
@@ -152,7 +152,7 @@ struct Game_screen : public Project_window {
 		//returns the location in the array of the tile at (x,y)
 		for (int i = 0; i < tiles.size(); ++i) {
 			if (tiles[i].x() == x && tiles[i].y() == y) {
-				cout << "tile found at location (" << x << ", " << y << ")" << endl;
+				//cout << "tile found at location (" << x << ", " << y << ")" << endl;
 				return i;
 			}
 		}
@@ -162,7 +162,7 @@ struct Game_screen : public Project_window {
 	int locate_tile(int tile_number) {
 		for (int i = 0; i < 16; ++i) {
 			if (tiles[i].val() == tile_number) {
-				cout << "tile found at location " << i << endl;
+				//cout << "tile found at location " << i << endl;
 				return i;
 			}
 		}
@@ -186,8 +186,6 @@ struct Game_screen : public Project_window {
 			min_error = min(min_error, curr_error);
 			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
 			errors[0] = curr_error;
-			cout << "up_error: " << curr_error << endl;
-			cout << "best error so far: " << min_error << endl;
 		}
 		//case of downwards move
 		if (empty_y < 3) {
@@ -199,8 +197,6 @@ struct Game_screen : public Project_window {
 			min_error = min(min_error, curr_error);
 			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
 			errors[1] = curr_error;
-			cout << "down_error: " << curr_error << endl;
-			cout << "best error so far: " << min_error << endl;
 		}
 		//case of left move
 		if (empty_x > 0) {
@@ -212,8 +208,6 @@ struct Game_screen : public Project_window {
 			min_error = min(min_error, curr_error);
 			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
 			errors[2] = curr_error;
-			cout << "left_error: " << curr_error << endl;
-			cout << "best error so far: " << min_error << endl;
 		}
 		//case of right move
 		if (empty_x < 3) {
@@ -225,8 +219,6 @@ struct Game_screen : public Project_window {
 			min_error = min(min_error, curr_error);
 			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
 			errors[3] = curr_error;
-			cout << "right_error: " << curr_error << endl;
-			cout << "best error so far: " << min_error << endl;
 		}
 		//choose best moves
 		vector<string> directions = { "Up","Down","Left","Right" };
@@ -297,10 +289,9 @@ struct Game_screen : public Project_window {
 			}
 		}
 
-		cout << "The tile you clicked is " << tile_num << endl;
-		cout << "Its row is " << tiles[place].y() << endl;
-		cout << "Its col is " << tiles[place].x() << endl;
-		cout << "Manhattan distance is " << tiles[place].manhattan() << endl;
+		cout << "The tile you clicked is " << tile_num;
+		cout << " (" << tiles[place].y() << "," << tiles[place].x() << ")" << endl;
+		cout << "Manhattan: " << tiles[place].manhattan() << endl;
 		swap(place);
 	}
 
