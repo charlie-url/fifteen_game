@@ -144,7 +144,7 @@ struct Game_screen : public Project_window {
 			temp_y = tiles[empty].y();
 			tiles[empty].pseudo_set_xy(tiles[val].x(), tiles[val].y());
 			tiles[val].pseudo_set_xy(temp_x, temp_y);
-			cout << "invisible move of tiles" << endl;
+			cout << "\tinvisible move of tiles" << endl;
 		}
 	}
 
@@ -152,46 +152,77 @@ struct Game_screen : public Project_window {
 		//returns the location in the array of the tile at (x,y)
 		for (int i = 0; i < tiles.size(); ++i) {
 			if (tiles[i].x() == x && tiles[i].y() == y) {
+				cout << "tile found at location (" << x << ", " << y << ")" << endl;
 				return i;
 			}
 		}
+		cout << "error: tile at (" << x << "," << y << ") not found" << endl;
 	}
 
 	int locate_tile(int tile_number) {
-		int loc = 0;//location of empty tile in the array
 		for (int i = 0; i < 16; ++i) {
-			if (tiles[i].val() == 0) {
+			if (tiles[i].val() == tile_number) {
+				cout << "tile found at location " << i << endl;
 				return i;
 			}
 		}
+		cout << "error, tile " << tile_number << " not found" << endl;
 	}
 
 	void hint() {
-		int empty = 0;//location of empty tile in the array
-		int empty_x = 0;
-		int empty_y = 0;
-		for (int i = 0; i < 16; ++i) {
-			if (tiles[i].val() == 0) {
-				empty = i;
-				empty_x = tiles[i].x();
-				empty_y = tiles[i].y();
-			}
-		}
+		int empty = locate_tile(0);
+		int empty_y = tiles[empty].y();
+		int empty_x = tiles[empty].x();
 		int min_error = 160;//more than possible on one board
 		int curr_error = 0;//error of current layout
 		//case of upwards move (row 1 to 3)
-		if (empty_x > 0) {
+		if (empty_y > 0) {
 			curr_error = 0;
 			pseudo_swap(locate_tile(empty_x, empty_y - 1));
 			for (int i = 0; i < tiles.size(); ++i) {
 				curr_error += tiles[i].manhattan();
 			}
 			min_error = min(min_error, curr_error);
-			pseudo_swap(empty);//reset board
+			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+			cout << "up_error: " << curr_error << endl;
+			cout << "best error so far: " << min_error << endl;
 		}
 		//case of downwards move
+		if (empty_y < 3) {
+			curr_error = 0;
+			pseudo_swap(locate_tile(empty_x, empty_y + 1));
+			for (int i = 0; i < tiles.size(); ++i) {
+				curr_error += tiles[i].manhattan();
+			}
+			min_error = min(min_error, curr_error);
+			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+			cout << "down_error: " << curr_error << endl;
+			cout << "best error so far: " << min_error << endl;
+		}
 		//case of left move
+		if (empty_x > 0) {
+			curr_error = 0;
+			pseudo_swap(locate_tile(empty_x-1, empty_y));
+			for (int i = 0; i < tiles.size(); ++i) {
+				curr_error += tiles[i].manhattan();
+			}
+			min_error = min(min_error, curr_error);
+			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+			cout << "left_error: " << curr_error << endl;
+			cout << "best error so far: " << min_error << endl;
+		}
 		//case of right move
+		if (empty_x < 3) {
+			curr_error = 0;
+			pseudo_swap(locate_tile(empty_x+1, empty_y));
+			for (int i = 0; i < tiles.size(); ++i) {
+				curr_error += tiles[i].manhattan();
+			}
+			min_error = min(min_error, curr_error);
+			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+			cout << "right_error: " << curr_error << endl;
+			cout << "best error so far: " << min_error << endl;
+		}
 	}
 
 
