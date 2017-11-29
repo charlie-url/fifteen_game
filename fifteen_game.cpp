@@ -42,6 +42,14 @@ struct Tile_button : public Button {
 		y_coord = y;
 		Fl::redraw();
 	}
+
+	void pseudo_set_xy(int x, int y) {
+		move(100 * (x - x_coord), 0);
+		x_coord = x;
+		move(0, 100 * (y - y_coord));
+		y_coord = y;
+	}
+
 	int manhattan() {
 		//do: calculate position from value
 		int ideal_x = (number - 1) % 4;
@@ -110,16 +118,41 @@ struct Game_screen : public Project_window {
 		game_init();
 	}
 
-	void pseudo_move(int tile_num) {
-		//move but not
-
-
+	void pseudo_move(int val) {
+		//moves, but does not redraw or decrement counters
+		int empty = 0;//location of empty tile
+		int temp_x = 0;
+		int temp_y = 0;
+		bool valid_swap = false;
+		for (int i = 0; i < 16; ++i) {
+			if (tiles[i].val() == 0) {
+				empty = i;
+			}
+		}
+		if (tiles[empty].x() == tiles[val].x()) {
+			if (abs(tiles[empty].y() - tiles[val].y()) == 1) {
+				valid_swap = true;
+			}
+		}
+		if (tiles[empty].y() == tiles[val].y()) {
+			if (abs(tiles[empty].x() - tiles[val].x()) == 1) {
+				valid_swap = true;
+			}
+		}
+		if (valid_swap) {
+			temp_x = tiles[empty].x();
+			temp_y = tiles[empty].y();
+			tiles[empty].pseudo_set_xy(tiles[val].x(), tiles[val].y());
+			tiles[val].pseudo_set_xy(temp_x, temp_y);
+			cout << "invisible move of tiles" << endl;
+		}
 	}
 
 	void hint() {
-		//hint here
-
-
+		//case of upwards move
+		//case of downwards move
+		//case of left move
+		//case of right move
 	}
 
 
