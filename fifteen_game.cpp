@@ -175,6 +175,7 @@ struct Game_screen : public Project_window {
 		int empty_x = tiles[empty].x();
 		int min_error = 160;//more than possible on one board
 		int curr_error = 0;//error of current layout
+		vector<int> errors = { 0,0,0,0 };
 		//case of upwards move (row 1 to 3)
 		if (empty_y > 0) {
 			curr_error = 0;
@@ -184,6 +185,7 @@ struct Game_screen : public Project_window {
 			}
 			min_error = min(min_error, curr_error);
 			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+			errors[0] = curr_error;
 			cout << "up_error: " << curr_error << endl;
 			cout << "best error so far: " << min_error << endl;
 		}
@@ -196,6 +198,7 @@ struct Game_screen : public Project_window {
 			}
 			min_error = min(min_error, curr_error);
 			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+			errors[1] = curr_error;
 			cout << "down_error: " << curr_error << endl;
 			cout << "best error so far: " << min_error << endl;
 		}
@@ -208,6 +211,7 @@ struct Game_screen : public Project_window {
 			}
 			min_error = min(min_error, curr_error);
 			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+			errors[2] = curr_error;
 			cout << "left_error: " << curr_error << endl;
 			cout << "best error so far: " << min_error << endl;
 		}
@@ -220,8 +224,16 @@ struct Game_screen : public Project_window {
 			}
 			min_error = min(min_error, curr_error);
 			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+			errors[3] = curr_error;
 			cout << "right_error: " << curr_error << endl;
 			cout << "best error so far: " << min_error << endl;
+		}
+		//choose best moves
+		vector<string> directions = { "Up","Down","Left","Right" };
+		for (int i = 0; i < errors.size(); ++i) {
+			if (errors[i] == min_error) {
+				cout << directions[i] << endl;
+			}
 		}
 	}
 
