@@ -14,10 +14,10 @@ struct player_score {
 
 struct Tile_button : public Button {
 	Tile_button(int x_coord, int y_coord, int number, Callback cb)
-		:Button{ Point(100 + (100 * x_coord),200 + (100 * y_coord)),100, 100, to_string(number), cb},
-		x_coord{x_coord},
-		y_coord{y_coord},
-			number{number}
+		:Button{ Point(100 + (100 * x_coord),200 + (100 * y_coord)),100, 100, to_string(number), cb },
+		x_coord{ x_coord },
+		y_coord{ y_coord },
+		number{ number }
 	{}
 
 	int x() {
@@ -31,28 +31,28 @@ struct Tile_button : public Button {
 		return number;
 	}
 	void set_x(int x) {
-		
-		move(100*(x-x_coord),0);
+
+		move(100 * (x - x_coord), 0);
 		x_coord = x;
 		Fl::redraw();
 	}
 
 	void set_y(int y) {
-		move(0,100 * (y-y_coord));
+		move(0, 100 * (y - y_coord));
 		y_coord = y;
 		Fl::redraw();
 	}
 	int manhattan() {
 		//do: calculate position from value
-		int ideal_x = (number-1) % 4;
-		int ideal_y = (number-1) / 4;
-		if(number==0){//blank in bottom right
+		int ideal_x = (number - 1) % 4;
+		int ideal_y = (number - 1) / 4;
+		if (number == 0) {//blank in bottom right
 			ideal_x = 3;
 			ideal_y = 3;
 		}
 		int dy = abs(y_coord - ideal_y);
 		int dx = abs(x_coord - ideal_x);
-		return (dx+dy);
+		return (dx + dy);
 	}
 
 
@@ -95,6 +95,7 @@ struct Game_screen : public Project_window {
 		:Project_window{ xy,w,h,title },
 		difficulty{ difficulty }
 	{
+		num_right = 0;
 		moves_remain = difficulty;
 		attach(leader_title);
 		attach(first);
@@ -103,7 +104,18 @@ struct Game_screen : public Project_window {
 		attach(fourth);
 		attach(fifth);
 		attach(moves);
+		attach(right);
 		game_init();
+	}
+
+	void number_right() {
+		num_right = 0;
+		for (int i = 0; i < 16; ++i) {
+			if (tiles[i].manhattan() != 0) {
+				++num_right;
+			}
+		}
+		right.set_label(to_string(num_right));
 	}
 
 	vector<string> leaderboard()
@@ -149,11 +161,11 @@ struct Game_screen : public Project_window {
 
 	void tile(int tile_num) {
 		int place = 0;
-		for(int i = 0; i < tiles.size();++i){
-			if(tiles[i].val() == tile_num){
+		for (int i = 0; i < tiles.size();++i) {
+			if (tiles[i].val() == tile_num) {
 				place = i;
 			}
-		} 
+		}
 
 		cout << "The tile you clicked is " << tile_num << endl;
 		cout << "Its row is " << tiles[place].y() << endl;
@@ -173,7 +185,7 @@ struct Game_screen : public Project_window {
 			}
 		}
 		if (tiles[empty].x() == tiles[val].x()) {
-			if (abs(tiles[empty].y() - tiles[val].y())==1) {
+			if (abs(tiles[empty].y() - tiles[val].y()) == 1) {
 				valid_swap = true;
 			}
 		}
@@ -192,6 +204,7 @@ struct Game_screen : public Project_window {
 			--moves_remain;
 			moves.set_label(to_string(moves_remain));
 		}
+		number_right();
 	}
 
 
@@ -211,7 +224,7 @@ struct Game_screen : public Project_window {
 		}
 	}
 
-	void game_init(){
+	void game_init() {
 		load_values();
 		tile_bag.push_back(new Tile_button{ 0,0,0,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(0);} });
 		tile_bag.push_back(new Tile_button{ 0,0,1,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(1);} });
@@ -245,9 +258,10 @@ struct Game_screen : public Project_window {
 private:
 	int moves_remain;
 	int difficulty;
+	int num_right;
 	Vector_ref<Tile_button> tile_bag;
 	Vector_ref<Tile_button> tiles;
-	
+
 	vector<int> numbers;
 	vector<int> ten_nums = { 1, 5, 9, 13, 2, 6, 10, 14, 3, 12, 0, 8, 4, 7, 15, 11 };
 	vector<int> twenty_nums = { 1, 5, 9, 13, 6, 0, 10, 15, 3, 2, 14, 12, 4, 11, 7, 8 };
@@ -255,6 +269,7 @@ private:
 	vector<int> eighty_nums = { 0, 15, 3, 4, 12, 14, 7, 8, 11, 10, 6, 5, 13, 9, 2, 1 };
 
 	Text moves = Text{ Point{360,128}, "#" };
+	Text right = Text{ Point{360, 148}, "##" };
 	Text leader_title = Text{ Point{ 550,200 }, "Leaderboard" };
 	Text first = Text{ Point{ 550,250 }, leaderboard()[0] };
 	Text second = Text{ Point{ 550,300 }, leaderboard()[1] };
@@ -310,7 +325,7 @@ struct Splash_screen : public Project_window {
 
 	Splash_screen(Point xy, int w, int h, const string& title)
 		:Project_window{ xy,w,h,title },
-		
+
 		show_instructions{ Point{ 360 - 64,360 + 32 }, 128, 64, "Instuctions",  [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); } },
 		play_button{ Point{ 360 - 64,360 - 32 }, 128, 64, "Start",  [](Address, Address pw) { reference_to<Splash_screen>(pw).view_levels(); } },
 		username(Point(x_max() - 310, 0), 70, 30, "Enter initial")
