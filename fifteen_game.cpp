@@ -89,6 +89,24 @@ struct Project_window : Graph_lib::Window {
 	bool button_pushed;
 };
 
+struct End_screen : public Project_window {
+
+
+	End_screen(Point xy, int w, int h, const string& title, int final_player_score)
+		:Project_window{ xy,w,h,title },
+		final_player_score{ final_player_score }
+	{
+		cout << final_player_score << endl;
+		cout << "to string " << to_string(final_player_score) << endl;
+		attach(score);
+	}
+
+private:
+	const string text_score = "Final Score: " + to_string(final_player_score);
+	Text score = Text{ Point{100,100}, text_score};
+	int final_player_score;
+};
+
 struct Game_screen : public Project_window {
 
 	Game_screen(Point xy, int w, int h, const string& title, int difficulty)
@@ -174,6 +192,14 @@ struct Game_screen : public Project_window {
 		swap(place);
 	}
 
+	void game_over(int final_score) {
+		cout << "Game over" << endl;
+		cout << "Final score is " << final_score << endl;
+		quit();
+		End_screen end_game(Point(0, 0), 720, 720, "Game Over", final_score);
+		end_game.wait_for_button();
+	}
+
 	void swap(int val) {
 		int empty = 0;//location of empty tile
 		int temp_x = 0;
@@ -203,6 +229,10 @@ struct Game_screen : public Project_window {
 			tiles[val].set_y(temp_y);
 			--moves_remain;
 			moves.set_label(to_string(moves_remain));
+			if(moves_remain == 0) {
+				int score = difficulty * num_right;
+				game_over(score);
+			}
 		}
 		number_right();
 	}
@@ -319,6 +349,22 @@ private:
 
 };
 
+struct Instruct_screen : public Project_window {
+
+
+	Instruct_screen(Point xy, int w, int h, const string& title)
+		:Project_window{ xy,w,h,title }
+	{
+		attach(instruct1);
+		attach(instruct2);
+	}
+
+private:
+	Text instruct1 = Text{ Point{100,100}, "Click a tile next to the empty tile to move the tile into the empty tile's spot. Continue" };
+	Text instruct2 = Text{ Point{100,115}, "to do so until the tiles are in the correct numerical order." };
+
+};
+
 struct Splash_screen : public Project_window {
 
 
@@ -352,7 +398,9 @@ struct Splash_screen : public Project_window {
 
 	void instruct() {
 		cout << "[instructions]" << endl;
-
+		quit();
+		Instruct_screen instructs(Point(0, 0), 720, 720, "Instruction");
+		instructs.wait_for_button();
 		Fl::redraw();
 	}
 
@@ -361,13 +409,12 @@ private:
 	Text team_info = Text{ Point{ 100,150 }, "Team 41: TeamName" };
 	Text team_roster = Text{ Point{ 100,200 }, "Charles Wong Savannah Yu Cindy Zhang Eric Zhang" };
 
+
 	Button show_instructions;
 	Button play_button;
 	In_box username;
-
-
-
 };
+
 
 int main() {
 	try {
