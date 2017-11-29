@@ -93,7 +93,8 @@ struct Game_screen : public Project_window {
 
 	Game_screen(Point xy, int w, int h, const string& title, int difficulty)
 		:Project_window{ xy,w,h,title },
-		difficulty{ difficulty }
+		difficulty{ difficulty },
+		hint_button{ Point(360,10), 160, 96, "Hint", [](Address, Address pw) {reference_to<Game_screen>(pw).hint();} }
 	{
 		num_right = 0;
 		moves_remain = difficulty;
@@ -105,8 +106,22 @@ struct Game_screen : public Project_window {
 		attach(fifth);
 		attach(moves);
 		attach(right);
+		attach(hint_button);
 		game_init();
 	}
+
+	void pseudo_move(int tile_num) {
+		//move but not
+
+
+	}
+
+	void hint() {
+		//hint here
+
+
+	}
+
 
 	void number_right() {
 		num_right = 0;
@@ -268,6 +283,7 @@ private:
 	vector<int> forty_nums = { 6, 10, 9, 14, 5, 13, 15, 12, 11, 2, 7, 8, 4, 1, 3, 0 };
 	vector<int> eighty_nums = { 0, 15, 3, 4, 12, 14, 7, 8, 11, 10, 6, 5, 13, 9, 2, 1 };
 
+	Button hint_button;
 	Text moves = Text{ Point{360,128}, "#" };
 	Text right = Text{ Point{360, 148}, "##" };
 	Text leader_title = Text{ Point{ 550,200 }, "Leaderboard" };
