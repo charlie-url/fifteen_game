@@ -319,6 +319,22 @@ private:
 
 };
 
+struct Instruct_screen : public Project_window {
+
+
+	Instruct_screen(Point xy, int w, int h, const string& title)
+		:Project_window{ xy,w,h,title }
+	{
+		attach(instruct1);
+		attach(instruct2);
+	}
+
+private:
+	Text instruct1 = Text{ Point{100,100}, "Click a tile next to the empty tile to move the tile into the empty tile's spot. Continue" };
+	Text instruct2 = Text{ Point{100,115}, "to do so until the tiles are in the correct numerical order." };
+
+};
+
 struct Splash_screen : public Project_window {
 
 
@@ -352,7 +368,9 @@ struct Splash_screen : public Project_window {
 
 	void instruct() {
 		cout << "[instructions]" << endl;
-
+		quit();
+		Instruct_screen instructs(Point(0, 0), 720, 720, "Instruction");
+		instructs.wait_for_button();
 		Fl::redraw();
 	}
 
@@ -361,13 +379,12 @@ private:
 	Text team_info = Text{ Point{ 100,150 }, "Team 41: TeamName" };
 	Text team_roster = Text{ Point{ 100,200 }, "Charles Wong Savannah Yu Cindy Zhang Eric Zhang" };
 
+
 	Button show_instructions;
 	Button play_button;
 	In_box username;
-
-
-
 };
+
 
 int main() {
 	try {
