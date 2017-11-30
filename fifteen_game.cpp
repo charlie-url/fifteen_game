@@ -75,6 +75,7 @@ private:
 struct Project_window : Graph_lib::Window {
 	Project_window(Point xy, int w, int h, const string& title)
 		:Window{ xy,w,h,title },
+		username{ Text(Point(0,0),"username") },
 		quit_button{ Point{ 70,0 }, 70, 20, "Quit",[](Address, Address pw) {reference_to<Project_window>(pw).quit(); } },
 		button_pushed{ false },
 		state{ Game_state(Default) }
@@ -82,7 +83,13 @@ struct Project_window : Graph_lib::Window {
 		attach(quit_button);
 	}
 
+	void set_username(string new_name) {
+		username.set_label(new_name);
+	}
+
 	Game_state wait_for_button() {
+		make_current();
+		show();
 		while (!button_pushed) {
 			Fl::wait();
 		}
@@ -100,7 +107,7 @@ struct Project_window : Graph_lib::Window {
 		hide();
 		state = Game_state(Quit);
 	}
-	String user;
+	Text username;
 	Button quit_button;
 	bool button_pushed;
 	Game_state state;
@@ -112,12 +119,12 @@ struct End_screen : public Project_window {
 	End_screen(Point xy, int w, int h, const string& title, int final_player_score, string user)
 		:Project_window{ xy,w,h,title },
 		new_game_button{ Point{ 150,70 }, 70, 70, "New Game",[](Address, Address pw) { reference_to<End_screen>(pw).set_state(Game_state(Level)); } },
-		final_player_score{ final_player_score },
-		user{user}
+		final_player_score{ final_player_score }
 	{
 		cout << final_player_score << endl;
 		score.set_label("Final Score: " + to_string(final_player_score));
 		attach(score);
+		set_username(user);
 	}
 
 
@@ -126,7 +133,6 @@ private:
 	string text_score;
 	Text score = Text{ Point{ 100,100 }, text_score };
 	int final_player_score;
-	string user;
 };
 
 bool operator<(player_score p1, player_score p2) {
@@ -144,361 +150,360 @@ struct Game_screen : public Project_window {
 		:Project_window{ xy,w,h,title },
 		difficulty{ difficulty },
 		hint_button{ Point(360,10), 160, 100, "Hint", [](Address, Address pw) {reference_to<Game_screen>(pw).hint(); } },
-		advice{ Point{ 360, 30 }, "A helpful hint if you click the button" },
-		username{ Point{ 360,10 }, user },
-		user{user}
-	{
-		score = 0;
-		num_right = 0;
-		moves_remain = difficulty;
-		attach(leader_title);
-		attach(first);
-		attach(second);
-		attach(third);
-		attach(fourth);
-		attach(fifth);
-		attach(moves);
-		attach(right);
-		attach(hint_button);
-		attach(advice);
-		game_init();
-	}
+		advice{ Point{ 360, 30 }, "A helpful hint if you click the button" }
+		{
+			set_username(user);
+			score = 0;
+			num_right = 0;
+			moves_remain = difficulty;
+			attach(leader_title);
+			attach(first);
+			attach(second);
+			attach(third);
+			attach(fourth);
+			attach(fifth);
+			attach(moves);
+			attach(right);
+			attach(hint_button);
+			attach(advice);
+			game_init();
+		}
 
-	void set_difficulty(int diff) {
-		difficulty = diff;
-		order_tiles();
-	}
+		void set_difficulty(int diff) {
+			difficulty = diff;
+			order_tiles();
+		}
 
-	int get_score() {
-		return score;
-	}
+		int get_score() {
+			return score;
+		}
 
-	void pseudo_swap(int val) {
-		//moves, but does not redraw or decrement counters
-		int empty = 0;//location of empty tile
-		int temp_x = 0;
-		int temp_y = 0;
-		bool valid_swap = false;
-		for (int i = 0; i < 16; ++i) {
-			if (tiles[i].val() == 0) {
-				empty = i;
+		void pseudo_swap(int val) {
+			//moves, but does not redraw or decrement counters
+			int empty = 0;//location of empty tile
+			int temp_x = 0;
+			int temp_y = 0;
+			bool valid_swap = false;
+			for (int i = 0; i < 16; ++i) {
+				if (tiles[i].val() == 0) {
+					empty = i;
+				}
+			}
+			if (tiles[empty].x() == tiles[val].x()) {
+				if (abs(tiles[empty].y() - tiles[val].y()) == 1) {
+					valid_swap = true;
+				}
+			}
+			if (tiles[empty].y() == tiles[val].y()) {
+				if (abs(tiles[empty].x() - tiles[val].x()) == 1) {
+					valid_swap = true;
+				}
+			}
+			if (valid_swap) {
+				temp_x = tiles[empty].x();
+				temp_y = tiles[empty].y();
+				tiles[empty].pseudo_set_xy(tiles[val].x(), tiles[val].y());
+				tiles[val].pseudo_set_xy(temp_x, temp_y);
+				//cout << "\tinvisible move of tiles" << endl;
 			}
 		}
-		if (tiles[empty].x() == tiles[val].x()) {
-			if (abs(tiles[empty].y() - tiles[val].y()) == 1) {
-				valid_swap = true;
-			}
-		}
-		if (tiles[empty].y() == tiles[val].y()) {
-			if (abs(tiles[empty].x() - tiles[val].x()) == 1) {
-				valid_swap = true;
-			}
-		}
-		if (valid_swap) {
-			temp_x = tiles[empty].x();
-			temp_y = tiles[empty].y();
-			tiles[empty].pseudo_set_xy(tiles[val].x(), tiles[val].y());
-			tiles[val].pseudo_set_xy(temp_x, temp_y);
-			//cout << "\tinvisible move of tiles" << endl;
-		}
-	}
 
-	int locate_tile(int x, int y) {
-		//returns the location in the array of the tile at (x,y)
-		for (int i = 0; i < tiles.size(); ++i) {
-			if (tiles[i].x() == x && tiles[i].y() == y) {
-				//cout << "tile found at location (" << x << ", " << y << ")" << endl;
-				return i;
-			}
-		}
-		cout << "error: tile at (" << x << "," << y << ") not found" << endl;
-	}
-
-	int locate_tile(int tile_number) {
-		for (int i = 0; i < 16; ++i) {
-			if (tiles[i].val() == tile_number) {
-				//cout << "tile found at location " << i << endl;
-				return i;
-			}
-		}
-		cout << "error, tile " << tile_number << " not found" << endl;
-	}
-
-	void hint() {
-		int empty = locate_tile(0);
-		int empty_y = tiles[empty].y();
-		int empty_x = tiles[empty].x();
-		int min_error = 160;//more than possible on one board
-		int curr_error = 0;//error of current layout
-		vector<int> errors = { 0,0,0,0 };
-		//case of upwards move (row 1 to 3)
-		if (empty_y > 0) {
-			curr_error = 0;
-			pseudo_swap(locate_tile(empty_x, empty_y - 1));
+		int locate_tile(int x, int y) {
+			//returns the location in the array of the tile at (x,y)
 			for (int i = 0; i < tiles.size(); ++i) {
-				curr_error += tiles[i].manhattan();
+				if (tiles[i].x() == x && tiles[i].y() == y) {
+					//cout << "tile found at location (" << x << ", " << y << ")" << endl;
+					return i;
+				}
 			}
-			min_error = min(min_error, curr_error);
-			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
-			errors[0] = curr_error;
+			cout << "error: tile at (" << x << "," << y << ") not found" << endl;
 		}
-		//case of downwards move
-		if (empty_y < 3) {
-			curr_error = 0;
-			pseudo_swap(locate_tile(empty_x, empty_y + 1));
+
+		int locate_tile(int tile_number) {
+			for (int i = 0; i < 16; ++i) {
+				if (tiles[i].val() == tile_number) {
+					//cout << "tile found at location " << i << endl;
+					return i;
+				}
+			}
+			cout << "error, tile " << tile_number << " not found" << endl;
+		}
+
+		void hint() {
+			int empty = locate_tile(0);
+			int empty_y = tiles[empty].y();
+			int empty_x = tiles[empty].x();
+			int min_error = 160;//more than possible on one board
+			int curr_error = 0;//error of current layout
+			vector<int> errors = { 0,0,0,0 };
+			//case of upwards move (row 1 to 3)
+			if (empty_y > 0) {
+				curr_error = 0;
+				pseudo_swap(locate_tile(empty_x, empty_y - 1));
+				for (int i = 0; i < tiles.size(); ++i) {
+					curr_error += tiles[i].manhattan();
+				}
+				min_error = min(min_error, curr_error);
+				pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+				errors[0] = curr_error;
+			}
+			//case of downwards move
+			if (empty_y < 3) {
+				curr_error = 0;
+				pseudo_swap(locate_tile(empty_x, empty_y + 1));
+				for (int i = 0; i < tiles.size(); ++i) {
+					curr_error += tiles[i].manhattan();
+				}
+				min_error = min(min_error, curr_error);
+				pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+				errors[1] = curr_error;
+			}
+			//case of left move
+			if (empty_x > 0) {
+				curr_error = 0;
+				pseudo_swap(locate_tile(empty_x - 1, empty_y));
+				for (int i = 0; i < tiles.size(); ++i) {
+					curr_error += tiles[i].manhattan();
+				}
+				min_error = min(min_error, curr_error);
+				pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+				errors[2] = curr_error;
+			}
+			//case of right move
+			if (empty_x < 3) {
+				curr_error = 0;
+				pseudo_swap(locate_tile(empty_x + 1, empty_y));
+				for (int i = 0; i < tiles.size(); ++i) {
+					curr_error += tiles[i].manhattan();
+				}
+				min_error = min(min_error, curr_error);
+				pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+				errors[3] = curr_error;
+			}
+			//choose best moves
+			vector<string> directions = { "Up","Down","Left","Right" };
+			string good_advice = "";
+			for (int i = 0; i < errors.size(); ++i) {
+				if (errors[i] == min_error) {
+					good_advice += directions[i] + " ";
+				}
+			}
+			advice.set_label("Try one of these moves: " + good_advice);
+			Fl::redraw();
+		}
+
+
+		void number_right() {
+			num_right = 0;
+			for (int i = 0; i < 16; ++i) {
+				if (tiles[i].manhattan() != 0) {
+					++num_right;
+				}
+			}
+			right.set_label(to_string(num_right));
+		}
+
+		vector<player_score> pulling_scores()
+		{
+			vector<player_score> original_scores;
+			ifstream Scores;
+			switch (difficulty) {
+			case 10:
+				Scores.open("usr/Scores_list_10.txt");
+				break;
+			case 20:
+				Scores.open("usr/Scores_list_20.txt");
+				break;
+			case 40:
+				Scores.open("usr/Scores_list_40.txt");
+				break;
+			case 80:
+				Scores.open("usr/Scores_list_80.txt");
+				break;
+			default:
+				cout << "Error with selecting difficulty, cannot display scores" << endl;
+			}
+			if (Scores.fail()) {
+				cerr << "Error Opening File" << endl;
+				keep_window_open();
+				exit(1);
+			}
+
+			player_score set_scores;
+			while (Scores >> set_scores.name >> set_scores.score) {
+				original_scores.push_back(set_scores);
+			}
+			Scores.close();//can put into a separate file later	
+
+			return original_scores;
+
+		}
+		vector<string> leaderboard() {
+			vector<string>top_5;
+
+			for (int i = 0; i < 5; ++i) {
+				string combined_name_score = pulling_scores()[i].name + "         " + to_string(pulling_scores()[i].score);
+				top_5.push_back(combined_name_score);
+			}
+
+			return top_5;
+		}
+
+		void tile(int tile_num) {
+			int place = 0;
 			for (int i = 0; i < tiles.size(); ++i) {
-				curr_error += tiles[i].manhattan();
+				if (tiles[i].val() == tile_num) {
+					place = i;
+				}
 			}
-			min_error = min(min_error, curr_error);
-			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
-			errors[1] = curr_error;
+
+			cout << "The tile you clicked is " << tile_num;
+			cout << " (" << tiles[place].y() << "," << tiles[place].x() << ")" << endl;
+			cout << "Manhattan: " << tiles[place].manhattan() << endl;
+			swap(place);
 		}
-		//case of left move
-		if (empty_x > 0) {
-			curr_error = 0;
-			pseudo_swap(locate_tile(empty_x - 1, empty_y));
-			for (int i = 0; i < tiles.size(); ++i) {
-				curr_error += tiles[i].manhattan();
+
+
+		void final_scores_list(int final_score) {
+			string fake_player_name = "YAY";
+			cout << "name: " << fake_player_name << endl;
+			vector<player_score>sort_scores = pulling_scores();
+
+			player_score set_player_info;
+			set_player_info.name = fake_player_name;
+			set_player_info.score = final_score;
+
+
+			sort_scores.push_back(set_player_info);
+			sort(sort_scores.begin(), sort_scores.end());
+
+			ofstream new_score_list;
+			switch (difficulty) {
+			case 10:
+				new_score_list.open("usr/Scores_list_10.txt");
+				break;
+			case 20:
+				new_score_list.open("usr/Scores_list_20.txt");
+				break;
+			case 40:
+				new_score_list.open("usr/Scores_list_40.txt");
+				break;
+			case 80:
+				new_score_list.open("usr/Scores_list_80.txt");
+				break;
+			default:
+				cout << "Error with selecting difficulty, cannot display scores" << endl;
 			}
-			min_error = min(min_error, curr_error);
-			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
-			errors[2] = curr_error;
-		}
-		//case of right move
-		if (empty_x < 3) {
-			curr_error = 0;
-			pseudo_swap(locate_tile(empty_x + 1, empty_y));
-			for (int i = 0; i < tiles.size(); ++i) {
-				curr_error += tiles[i].manhattan();
+			if (new_score_list.fail()) {
+				cerr << "Error Opening File" << endl;
+				keep_window_open();
+				exit(1);
 			}
-			min_error = min(min_error, curr_error);
-			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
-			errors[3] = curr_error;
-		}
-		//choose best moves
-		vector<string> directions = { "Up","Down","Left","Right" };
-		string good_advice = "";
-		for (int i = 0; i < errors.size(); ++i) {
-			if (errors[i] == min_error) {
-				good_advice += directions[i] + " ";
+			cout << "what is entered into the txt file: " << endl;
+			for (int i = sort_scores.size() - 1; i >= 0; --i) {
+				new_score_list << sort_scores[i].name << " " << sort_scores[i].score << endl << endl;
+				cout << sort_scores[i].name << "   " << sort_scores[i].score << endl;
 			}
-		}
-		advice.set_label("Try one of these moves: " + good_advice);
-		Fl::redraw();
-	}
 
-
-	void number_right() {
-		num_right = 0;
-		for (int i = 0; i < 16; ++i) {
-			if (tiles[i].manhattan() != 0) {
-				++num_right;
-			}
-		}
-		right.set_label(to_string(num_right));
-	}
-
-	vector<player_score> pulling_scores()
-	{
-		vector<player_score> original_scores;
-		ifstream Scores;
-		switch (difficulty) {
-		case 10:
-			Scores.open("usr/Scores_list_10.txt");
-			break;
-		case 20:
-			Scores.open("usr/Scores_list_20.txt");
-			break;
-		case 40:
-			Scores.open("usr/Scores_list_40.txt");
-			break;
-		case 80:
-			Scores.open("usr/Scores_list_80.txt");
-			break;
-		default:
-			cout << "Error with selecting difficulty, cannot display scores" << endl;
-		}
-		if (Scores.fail()) {
-			cerr << "Error Opening File" << endl;
-			keep_window_open();
-			exit(1);
+			//writes the new list of player names and the scores into the file
+			new_score_list.close();
+			//closes the file 
 		}
 
-		player_score set_scores;
-		while (Scores >> set_scores.name >> set_scores.score) {
-			original_scores.push_back(set_scores);
-		}
-		Scores.close();//can put into a separate file later	
-
-		return original_scores;
-
-	}
-	vector<string> leaderboard() {
-		vector<string>top_5;
-
-		for (int i = 0; i < 5; ++i) {
-			string combined_name_score = pulling_scores()[i].name + "         " + to_string(pulling_scores()[i].score);
-			top_5.push_back(combined_name_score);
-		}
-
-		return top_5;
-	}
-
-	void tile(int tile_num) {
-		int place = 0;
-		for (int i = 0; i < tiles.size(); ++i) {
-			if (tiles[i].val() == tile_num) {
-				place = i;
+		void check_game_over() {
+			if (moves_remain == 0) {
+				final_scores_list(score);
+				state = Game_state(End);
 			}
 		}
 
-		cout << "The tile you clicked is " << tile_num;
-		cout << " (" << tiles[place].y() << "," << tiles[place].x() << ")" << endl;
-		cout << "Manhattan: " << tiles[place].manhattan() << endl;
-		swap(place);
-	}
-
-
-	void final_scores_list(int final_score) {
-		string fake_player_name = "YAY";
-		cout << "name: " << fake_player_name << endl;
-		vector<player_score>sort_scores = pulling_scores();
-
-		player_score set_player_info;
-		set_player_info.name = fake_player_name;
-		set_player_info.score = final_score;
-
-
-		sort_scores.push_back(set_player_info);
-		sort(sort_scores.begin(), sort_scores.end());
-
-		ofstream new_score_list;
-		switch (difficulty) {
-		case 10:
-			new_score_list.open("usr/Scores_list_10.txt");
-			break;
-		case 20:
-			new_score_list.open("usr/Scores_list_20.txt");
-			break;
-		case 40:
-			new_score_list.open("usr/Scores_list_40.txt");
-			break;
-		case 80:
-			new_score_list.open("usr/Scores_list_80.txt");
-			break;
-		default:
-			cout << "Error with selecting difficulty, cannot display scores" << endl;
-		}
-		if (new_score_list.fail()) {
-			cerr << "Error Opening File" << endl;
-			keep_window_open();
-			exit(1);
-		}
-		cout << "what is entered into the txt file: " << endl;
-		for (int i = sort_scores.size() - 1; i >= 0; --i) {
-			new_score_list << sort_scores[i].name << " " << sort_scores[i].score << endl << endl;
-			cout << sort_scores[i].name << "   " << sort_scores[i].score << endl;
+		void swap(int val) {
+			int empty = 0;//location of empty tile
+			int temp_x = 0;
+			int temp_y = 0;
+			bool valid_swap = false;
+			for (int i = 0; i < 16; ++i) {
+				if (tiles[i].val() == 0) {
+					empty = i;
+				}
+			}
+			if (tiles[empty].x() == tiles[val].x()) {
+				if (abs(tiles[empty].y() - tiles[val].y()) == 1) {
+					valid_swap = true;
+				}
+			}
+			if (tiles[empty].y() == tiles[val].y()) {
+				if (abs(tiles[empty].x() - tiles[val].x()) == 1) {
+					valid_swap = true;
+				}
+			}
+			if (valid_swap) {
+				temp_x = tiles[empty].x();
+				temp_y = tiles[empty].y();
+				tiles[empty].set_x(tiles[val].x());
+				tiles[empty].set_y(tiles[val].y());
+				tiles[val].set_x(temp_x);
+				tiles[val].set_y(temp_y);
+				--moves_remain;
+				moves.set_label(to_string(moves_remain));
+				score = difficulty * (16 - num_right);
+				check_game_over();
+			}
+			number_right();
 		}
 
-		//writes the new list of player names and the scores into the file
-		new_score_list.close();
-		//closes the file 
-	}
 
-	void check_game_over() {
-		if (moves_remain == 0) {
-			final_scores_list(score);
-			state = Game_state(End);
-		}
-	}
+		void load_values() {
 
-	void swap(int val) {
-		int empty = 0;//location of empty tile
-		int temp_x = 0;
-		int temp_y = 0;
-		bool valid_swap = false;
-		for (int i = 0; i < 16; ++i) {
-			if (tiles[i].val() == 0) {
-				empty = i;
+			switch (difficulty) {//populate vector<int> numbers
+			case 10: numbers = ten_nums;
+				break;
+			case 20: numbers = twenty_nums;
+				break;
+			case 40: numbers = forty_nums;
+				break;
+			case 80: numbers = eighty_nums;
+				break;
+			default: cout << "error in choosing difficulty";
+				break;
 			}
 		}
-		if (tiles[empty].x() == tiles[val].x()) {
-			if (abs(tiles[empty].y() - tiles[val].y()) == 1) {
-				valid_swap = true;
+
+		void order_tiles() {
+			tiles = Vector_ref<Tile_button>{};
+			for (int i = 0; i < tile_bag.size(); i++) {
+				detach(tile_bag[i]);
+				tiles.push_back(tile_bag[numbers.at(i)]);//puts tiles in the correct order
+				tiles[i].set_x(i % 4);
+				tiles[i].set_y(i / 4);
+				attach(tiles[i]);
 			}
 		}
-		if (tiles[empty].y() == tiles[val].y()) {
-			if (abs(tiles[empty].x() - tiles[val].x()) == 1) {
-				valid_swap = true;
+
+		void game_init() {
+			load_values();
+			tile_bag.push_back(new Tile_button{ 0,0,0,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(0); } });
+			tile_bag.push_back(new Tile_button{ 0,0,1,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(1); } });
+			tile_bag.push_back(new Tile_button{ 0,0,2,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(2); } });
+			tile_bag.push_back(new Tile_button{ 0,0,3,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(3); } });
+			tile_bag.push_back(new Tile_button{ 0,0,4,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(4); } });
+			tile_bag.push_back(new Tile_button{ 0,0,5,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(5); } });
+			tile_bag.push_back(new Tile_button{ 0,0,6,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(6); } });
+			tile_bag.push_back(new Tile_button{ 0,0,7,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(7); } });
+			tile_bag.push_back(new Tile_button{ 0,0,8,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(8); } });
+			tile_bag.push_back(new Tile_button{ 0,0,9,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(9); } });
+			tile_bag.push_back(new Tile_button{ 0,0,10,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(10); } });
+			tile_bag.push_back(new Tile_button{ 0,0,11,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(11); } });
+			tile_bag.push_back(new Tile_button{ 0,0,12,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(12); } });
+			tile_bag.push_back(new Tile_button{ 0,0,13,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(13); } });
+			tile_bag.push_back(new Tile_button{ 0,0,14,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(14); } });
+			tile_bag.push_back(new Tile_button{ 0,0,15,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(15); } });
+			for (int i = 0; i < tile_bag.size(); ++i) {
+				attach(tile_bag[i]);
 			}
-		}
-		if (valid_swap) {
-			temp_x = tiles[empty].x();
-			temp_y = tiles[empty].y();
-			tiles[empty].set_x(tiles[val].x());
-			tiles[empty].set_y(tiles[val].y());
-			tiles[val].set_x(temp_x);
-			tiles[val].set_y(temp_y);
-			--moves_remain;
-			moves.set_label(to_string(moves_remain));
-			score = difficulty * (16 - num_right);
-			check_game_over();
-		}
-		number_right();
-	}
+			order_tiles();
 
-
-	void load_values() {
-
-		switch (difficulty) {//populate vector<int> numbers
-		case 10: numbers = ten_nums;
-			break;
-		case 20: numbers = twenty_nums;
-			break;
-		case 40: numbers = forty_nums;
-			break;
-		case 80: numbers = eighty_nums;
-			break;
-		default: cout << "error in choosing difficulty";
-			break;
 		}
-	}
-
-	void order_tiles() {
-		tiles = Vector_ref<Tile_button>{};
-		for (int i = 0; i < tile_bag.size(); i++) {
-			detach(tile_bag[i]);
-			tiles.push_back(tile_bag[numbers.at(i)]);//puts tiles in the correct order
-			tiles[i].set_x(i % 4);
-			tiles[i].set_y(i / 4);
-			attach(tiles[i]);
-		}
-	}
-
-	void game_init() {
-		load_values();
-		tile_bag.push_back(new Tile_button{ 0,0,0,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(0); } });
-		tile_bag.push_back(new Tile_button{ 0,0,1,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(1); } });
-		tile_bag.push_back(new Tile_button{ 0,0,2,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(2); } });
-		tile_bag.push_back(new Tile_button{ 0,0,3,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(3); } });
-		tile_bag.push_back(new Tile_button{ 0,0,4,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(4); } });
-		tile_bag.push_back(new Tile_button{ 0,0,5,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(5); } });
-		tile_bag.push_back(new Tile_button{ 0,0,6,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(6); } });
-		tile_bag.push_back(new Tile_button{ 0,0,7,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(7); } });
-		tile_bag.push_back(new Tile_button{ 0,0,8,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(8); } });
-		tile_bag.push_back(new Tile_button{ 0,0,9,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(9); } });
-		tile_bag.push_back(new Tile_button{ 0,0,10,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(10); } });
-		tile_bag.push_back(new Tile_button{ 0,0,11,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(11); } });
-		tile_bag.push_back(new Tile_button{ 0,0,12,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(12); } });
-		tile_bag.push_back(new Tile_button{ 0,0,13,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(13); } });
-		tile_bag.push_back(new Tile_button{ 0,0,14,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(14); } });
-		tile_bag.push_back(new Tile_button{ 0,0,15,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(15); } });
-		for (int i = 0; i < tile_bag.size(); ++i) {
-			attach(tile_bag[i]);
-		}
-		order_tiles();
-		
-	}
 
 private:
 	int score;
@@ -524,9 +529,6 @@ private:
 	Text third = Text{ Point{ 550,350 }, leaderboard()[2] };
 	Text fourth = Text{ Point{ 550,400 }, leaderboard()[3] };
 	Text fifth = Text{ Point{ 550,450 }, leaderboard()[4] };
-
-	Text username;
-	string user;
 };
 
 struct Level_select : public Project_window {
@@ -536,16 +538,15 @@ struct Level_select : public Project_window {
 		ten_button{ Point(200,50), 320, 100, "10", [](Address, Address pw) { reference_to<Level_select>(pw).set_state(Game_state(Game_10));} },
 		twenty_button{ Point(200,150), 320, 100, "20", [](Address, Address pw) {reference_to<Level_select>(pw).set_state(Game_state(Game_20)); } },
 		forty_button{ Point(200,250), 320, 100, "40", [](Address, Address pw) {reference_to<Level_select>(pw).set_state(Game_state(Game_40)); } },
-		eighty_button{ Point(200,350), 320, 100, "80", [](Address, Address pw) {reference_to<Level_select>(pw).set_state(Game_state(Game_80)); } },
-		username{ Point{ 360,10 }, user },
-		user{user}
-	{
-		attach(ten_button);
-		attach(twenty_button);
-		attach(forty_button);
-		attach(eighty_button);
-		attach(username);
-	}
+		eighty_button{ Point(200,350), 320, 100, "80", [](Address, Address pw) {reference_to<Level_select>(pw).set_state(Game_state(Game_80)); } }
+		{
+			set_username(user);
+			attach(ten_button);
+			attach(twenty_button);
+			attach(forty_button);
+			attach(eighty_button);
+			attach(username);
+		}
 
 private:
 	Button ten_button;
@@ -557,9 +558,6 @@ private:
 	Text difficulty_20 = Text{ Point{ 100,100 }, "Difficulty 20" };
 	Text difficulty_40 = Text{ Point{ 100,100 }, "Difficulty 40" };
 	Text difficulty_80 = Text{ Point{ 100,100 }, "Difficulty 80" };
-
-	Text username;
-	string user;
 };
 
 struct Instruct_screen : public Project_window {
@@ -568,10 +566,10 @@ struct Instruct_screen : public Project_window {
 	Instruct_screen(Point xy, int w, int h, const string& title)
 		:Project_window{ xy,w,h,title },
 		go_to_levels{ Point{ 360 - 64,360 - 32 }, 128, 64, "Start",  [](Address, Address pw) { reference_to<Instruct_screen>(pw).set_state(Game_state(Level)); } }
-		{
-			attach(instruct1);
-			attach(instruct2);
-		}
+	{
+		attach(instruct1);
+		attach(instruct2);
+	}
 
 private:
 	Button go_to_levels;
@@ -584,18 +582,18 @@ struct Splash_screen : public Project_window {
 		:Project_window{ xy,w,h,title },
 		show_instructions{ Point{ 360 - 64,360 + 32 }, 128, 64, "Instuctions",  [](Address, Address pw) { reference_to<Splash_screen>(pw).set_state(Game_state(Instruct));} },
 		play_button{ Point{ 360 - 64,360 - 32 }, 128, 64, "Start",  [](Address, Address pw) {  reference_to<Splash_screen>(pw).set_state(Game_state(Level)); } },
-		username(Point(x_max() - 310, 0), 70, 30, "Enter initials")
+		name_entry{ In_box(Point(x_max() - 310, 0), 70, 30, "Enter initials") }
 	{
 		attach(play_button);
 		attach(show_instructions);
 		attach(game_name);
 		attach(team_info);
 		attach(team_roster);
-		attach(username);
+		attach(name_entry);
 	}
 
 	string get_username() {
-		return username.get_string();
+		return name_entry.get_string();
 	}
 
 private:
@@ -606,20 +604,25 @@ private:
 
 	Button show_instructions;
 	Button play_button;
-	In_box username;
+	In_box name_entry;
 };
 
 struct Game_manager {
 
 	Game_manager()
-		:splash{Splash_screen(Point(0, 0), 720, 720, "Splash Screen")},
-		instruct{Instruct_screen(Point(0,0),720,720,"Instruct Screen")},
-		level{Level_select(Point(0,0),720,720,"Level Select","username")},
-		game{Game_screen(Point(0,0),720,720,"Game Screen",10,"username")},
-		end{End_screen(Point(0,0),720,720,"End Screen",0,"username")}
+		:splash{ Splash_screen(Point(0, 0), 720, 720, "Splash Screen") },
+		instruct{ Instruct_screen(Point(0, 0), 720, 720, "Instruct Screen") },
+		level{ Level_select(Point(0, 0), 720, 720, "Level Select", "username") },
+		game{ Game_screen(Point(0, 0), 720, 720, "Game Screen", 10, username) },
+		end{ End_screen(Point(0, 0), 720, 720, "End Screen", 0, "username") }
 	{
 		current = splash.wait_for_button();
 		username = splash.get_username();
+		level.set_username(username);
+		game.set_username(username);
+		end.set_username(username);
+		splash.make_current();
+		splash.show();
 	}
 
 	void run() {
@@ -651,11 +654,12 @@ struct Game_manager {
 				current = end.wait_for_button();
 				break;
 			case (Game_state(Quit)):
-				current = Game_state(Quit);
+				return;
 				break;
 			default:
 				cout << "Unexpected game state." << endl;
 				cout << "Quitting..." << endl;
+				return;
 				break;
 			}
 		}
@@ -670,7 +674,6 @@ private:
 	Level_select level;
 	Game_screen game;
 	End_screen end;
-
 };
 
 int main() {
