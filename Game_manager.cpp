@@ -6,7 +6,7 @@
 		instruct{ Instruct_screen(Point(0, 0), 720, 720, "Instruct Screen") },
 		level{ Level_select(Point(0, 0), 720, 720, "Level Select", "username") },
 		game{ Game_screen(Point(0, 0), 720, 720, "Game Screen", 10, "username") },
-		end{ End_screen(Point(0, 0), 720, 720, "End Screen", 0, "username") }
+		end{ End_screen(Point(0, 0), 720, 720, "End Screen","username") }
 	{
 		instruct.hide();
 		level.hide();
@@ -52,6 +52,7 @@
 				current = game.wait_for_button();
 				break;
 			case (Game_state(End)):
+				end.set_score(game.get_score());
 				end.show();
 				current = end.wait_for_button();
 				break;
