@@ -9,6 +9,7 @@
 	{
 		attach(play_button);
 		attach(show_instructions);
+		game_name.set_font_size(64);
 		attach(game_name);
 		attach(team_info);
 		attach(team_roster);
