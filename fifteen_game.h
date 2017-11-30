@@ -5,3 +5,4 @@
 #include "Level_select.h"
 #include "Instruct_screen.h"
 #include "Splash_screen.h"
+#include "Game_manager.h"
