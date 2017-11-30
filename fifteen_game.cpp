@@ -97,6 +97,24 @@ struct Project_window : Graph_lib::Window {
 	bool button_pushed;
 };
 
+struct End_screen : public Project_window {
+
+
+	End_screen(Point xy, int w, int h, const string& title, int final_player_score)
+		:Project_window{ xy,w,h,title },
+		final_player_score{ final_player_score }
+	{
+		cout << final_player_score << endl;	
+		score.set_label("Final Score: " + to_string(final_player_score));
+		attach(score);
+	}
+
+private:
+	string text_score; 
+	Text score = Text{ Point{100,100}, text_score};
+	int final_player_score;
+};
+
 struct Game_screen : public Project_window {
 
 	Game_screen(Point xy, int w, int h, const string& title, int difficulty)
@@ -300,6 +318,14 @@ struct Game_screen : public Project_window {
 		swap(place);
 	}
 
+	void game_over(int final_score) {
+		cout << "Game over" << endl;
+		cout << "Final score is " << final_score << endl;
+		quit();
+		End_screen end_game(Point(0, 0), 720, 720, "Game Over", final_score);
+		end_game.wait_for_button();
+	}
+
 	void swap(int val) {
 		int empty = 0;//location of empty tile
 		int temp_x = 0;
@@ -329,6 +355,10 @@ struct Game_screen : public Project_window {
 			tiles[val].set_y(temp_y);
 			--moves_remain;
 			moves.set_label(to_string(moves_remain));
+			if(moves_remain == 0) {
+				int score = difficulty * num_right;
+				game_over(score);
+			}
 		}
 		number_right();
 	}
