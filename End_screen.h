@@ -6,14 +6,13 @@
 struct End_screen : public Project_window {
 
 
-	End_screen(Point xy, int w, int h, const string& title, int final_player_score, string user);
+	End_screen(Point xy, int w, int h, const string& title, string user);
 
+	void set_score(int final_score);
 
 private:
 	Button new_game_button;
-	string text_score;
-	Text score = Text{ Point{ 100,100 }, text_score };
-	int final_player_score;
+	Text score = Text{ Point{ 100,100 }, "FinalScore"};
 };
 
 
