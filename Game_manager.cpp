@@ -7,7 +7,7 @@
 		level{ Level_select(Point(0, 0), 720, 720, "Level Select", "username") },
 		game{ Game_screen(Point(0, 0), 720, 720, "Game Screen", 10, "username") },
 		end{ End_screen(Point(0, 0), 720, 720, "End Screen","username") }
-	{
+	{//hides all other screens while splash screen gathers the user name
 		instruct.hide();
 		level.hide();
 		game.hide();
@@ -20,7 +20,7 @@
 		splash.hide();
 	}
 
-	void Game_manager::run() {
+	void Game_manager::run() {//proceeds to the next window until the user quits
 		while (current != Game_state(Quit)) {
 			switch (current) {
 			case (Game_state(Instruct)):
@@ -59,7 +59,7 @@
 			case (Game_state(Quit)):
 				return;
 				break;
-			default:
+			default://some sort of error
 				cout << "Unexpected game state." << endl;
 				cout << "Quitting..." << endl;
 				return;

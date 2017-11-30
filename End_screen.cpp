@@ -4,6 +4,7 @@
 		:Project_window{ xy,w,h,title },
 		new_game_button{ Point{ 300, 300 }, 150, 100, "New Game",[](Address, Address pw) { reference_to<End_screen>(pw).set_state(Game_state(Level)); } }
 	{
+		//display final score to user and give player option to play again
 		score.set_label("Final Score: ");
 		attach(score);
 		set_username(user);
@@ -13,6 +14,4 @@
 
 	void End_screen::set_score(int final_score) {
 		score.set_label("Final score: " + to_string(final_score));
-
-
 	}

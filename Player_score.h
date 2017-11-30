@@ -6,7 +6,7 @@
 struct player_score {
 	//for task 3 and 6, assigns two different values to 1 element in a vector made of player_scores
 
-	bool operator<(const player_score& p2);
+	bool operator<(const player_score& p2); //compare player scores
 
 	
 	string name;
