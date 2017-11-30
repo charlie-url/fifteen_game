@@ -8,20 +8,6 @@
 
 
 
-struct player_score {
-	//for task 3 and 6, assigns two different values to 1 element in a vector made of player_scores
-	string name;
-	int score;
-};
-
-bool operator<(player_score p1, player_score p2) {
-	if (p1.score < p2.score) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
 
 
 
