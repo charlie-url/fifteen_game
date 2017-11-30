@@ -19,6 +19,7 @@ struct Tile_button : public Button {
 
 	Image red_tile;
 	Image green_tile;
+	Image blank_tile;
 	Text tile_label;
 private:
 	int x_coord;

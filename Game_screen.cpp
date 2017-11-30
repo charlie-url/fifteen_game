@@ -356,6 +356,11 @@ void Game_screen::order_tiles() {
 			attach(tiles[i].red_tile);
 			detach(tiles[i].green_tile);
 		}
+		if (tiles[i].val() == 0) {
+			detach(tiles[i].green_tile);
+			detach(tiles[i].red_tile);
+			attach(tiles[i].blank_tile);
+		}
 		attach(tiles[i].tile_label);
 	}
 	Fl::redraw();
