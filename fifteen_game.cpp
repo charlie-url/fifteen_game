@@ -163,6 +163,12 @@ struct Game_screen : public Project_window {
 		attach(advice);
 		game_init();
 	}
+
+	void set_difficulty(int diff) {
+		difficulty = diff;
+		order_tiles();
+	}
+
 	int get_score() {
 		return score;
 	}
@@ -458,6 +464,17 @@ struct Game_screen : public Project_window {
 		}
 	}
 
+	void order_tiles() {
+		~tiles;
+		for (int i = 0; i < tile_bag.size(); i++) {
+			detach(tile_bag[i]);
+			tiles.push_back(tile_bag[numbers.at(i)]);//puts tiles in the correct order
+			tiles[i].set_x(i % 4);
+			tiles[i].set_y(i / 4);
+			attach(tiles[i]);
+		}
+	}
+
 	void game_init() {
 		load_values();
 		tile_bag.push_back(new Tile_button{ 0,0,0,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(0); } });
@@ -479,14 +496,8 @@ struct Game_screen : public Project_window {
 		for (int i = 0; i < tile_bag.size(); ++i) {
 			attach(tile_bag[i]);
 		}
-		cout << "done" << endl;
-		for (int i = 0; i < tile_bag.size(); i++) {
-			detach(tile_bag[i]);
-			tiles.push_back(tile_bag[numbers.at(i)]);//puts tiles in the correct order
-			tiles[i].set_x(i % 4);
-			tiles[i].set_y(i / 4);
-			attach(tiles[i]);
-		}
+		order_tiles();
+		
 	}
 
 private:
@@ -535,8 +546,8 @@ struct Level_select : public Project_window {
 		attach(eighty_button);
 		attach(username);
 	}
-private:
 
+private:
 	Button ten_button;
 	Button twenty_button;
 	Button forty_button;
@@ -618,27 +629,25 @@ struct Game_manager {
 				current = instruct.wait_for_button();
 				break;
 			case (Game_state(Level)):
-				level = Level_select(Point(0, 0), 720, 720, "Levels", username);
 				current = level.wait_for_button();
 				break;
 			case (Game_state(Game_10)):
-				game = Game_screen(Point(0, 0), 720, 720, "Game 10", 10, username);
+				game.set_difficulty(10);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_20)):
-				game = Game_screen(Point(0, 0), 720, 720, "Game 20", 20, username);
+				game.set_difficulty(20);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_40)):
-				game = Game_screen(Point(0, 0), 720, 720, "Game 40", 20, username);
+				game.set_difficulty(40);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_80)):
-				game = Game_screen(Point(0, 0), 720, 720, "Game 80", 20, username);
+				game.set_difficulty(80);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(End)):
-				end = End_screen(Point(0, 0), 720, 720, "Game Over", game.get_score(), username);
 				current = end.wait_for_button();
 				break;
 			case (Game_state(Quit)):
@@ -653,6 +662,7 @@ struct Game_manager {
 		return;
 	}
 private:
+	int difficulty;
 	Game_state current;
 	string username;
 	Splash_screen splash;
