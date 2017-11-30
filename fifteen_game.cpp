@@ -5,6 +5,8 @@
 #include "lib/Simple_window.h"
 
 
+enum Game_state { Default = 0, Splash = 1, Instruct = 2, Level = 3, Game = 4, End = 5, Quit = 6 };
+
 struct player_score {
 	//for task 3 and 6, assigns two different values to 1 element in a vector made of player_scores
 	string name;
@@ -75,12 +77,13 @@ struct Project_window : Graph_lib::Window {
 	Project_window(Point xy, int w, int h, const string& title)
 		:Window{ xy,w,h,title },
 		quit_button{ Point{ 70,0 }, 70, 20, "Quit",[](Address, Address pw) {reference_to<Project_window>(pw).quit(); } },
-		button_pushed{ false }
+		button_pushed{ false },
+		state{ Game_state(Default) }
 	{
 		attach(quit_button);
 	}
 
-	void wait_for_button() {
+	Game_state wait_for_button() {
 		while (!button_pushed) {
 			Fl::wait();
 		}
@@ -94,10 +97,10 @@ struct Project_window : Graph_lib::Window {
 		hide();
 	}
 
+	Game_state state;
 	Button quit_button;
 	bool button_pushed;
 
-	//string current_player_name();
 };
 
 struct End_screen : public Project_window {
@@ -105,6 +108,7 @@ struct End_screen : public Project_window {
 
 	End_screen(Point xy, int w, int h, const string& title, int final_player_score)
 		:Project_window{ xy,w,h,title },
+		new_game_button{ Point{ 150,70 }, 70, 70, "New Game",[](Address, Address pw) {reference_to<End_screen>(pw).new_game(); } },
 		final_player_score{ final_player_score }
 	{
 		cout << final_player_score << endl;
@@ -112,7 +116,13 @@ struct End_screen : public Project_window {
 		attach(score);
 	}
 
+	void new_game() {
+		quit();
+
+	}
+
 private:
+	Button new_game_button;
 	string text_score;
 	Text score = Text{ Point{ 100,100 }, text_score };
 	int final_player_score;
@@ -420,7 +430,7 @@ struct Game_screen : public Project_window {
 			tiles[val].set_y(temp_y);
 			--moves_remain;
 			moves.set_label(to_string(moves_remain));
-			if(moves_remain == 0) {
+			if (moves_remain == 0) {
 				int score = difficulty * (16 - num_right);
 				game_over(score);
 				final_scores_list(score);
@@ -588,7 +598,6 @@ struct Splash_screen : public Project_window {
 
 
 	void view_levels() {
-		cout << "[level screen]" << endl;
 		cout << username.get_string() << endl;
 		quit();
 		Level_select levels(Point(0, 0), 720, 720, "Level Select", username.get_string());
@@ -606,7 +615,6 @@ struct Splash_screen : public Project_window {
 		Fl::redraw();
 	}
 
-	//string &get_current_player_name = &username.get_string();
 private:
 	Text game_name = Text{ Point{ 100,100 }, "Fifteen Game" };
 	Text team_info = Text{ Point{ 100,150 }, "Team 41: TeamName" };
@@ -618,15 +626,49 @@ private:
 	In_box username;
 };
 
-/*string Project_window::current_player_name() {
+struct Game_manager {
 
-return Splash_screen::&get_current_player_name();
-}*/
+	Game_manager() {
+		Splash_screen splash;
+		Game_state current = splash.wait_for_button();
+		while (current != Game_state(Quit)) {
+			switch (Game_state) {
+			case (Game_state(Level) :
+				current = level.wait_for_button();
+				break;
+			case (Game_state(Instruct)):
+				current = instruct.wait_for_button();
+				break;
+			case (Game_state(Level)):
+				current = level.wait_for_button();
+				break;
+			case (Game_state(End)):
+				current = end.wait_for_button();
+				break;
+			default:
+				cout << "Unexpected game state." << endl;
+				cout << "Quitting..." << endl;
+				break;
+			}
+		}
+	}
+	Game_state current;
+	string username;
+	Splash_screen splash;
+	Instruct_screen instruct;
+	Level_select level;
+	Game_screen game;
+	End_screen end;
+
+};
 
 int main() {
 	try {
 		Splash_screen splash(Point(0, 0), 720, 720, "Splash Screen");
 		splash.wait_for_button();
+
+		keep_window_open();
+
 		return 0;
 
 	}
