@@ -4,3 +4,4 @@
 #include "Game_screen.h"
 #include "Level_select.h"
 #include "Instruct_screen.h"
+#include "Splash_screen.h"

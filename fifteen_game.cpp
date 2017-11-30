@@ -9,36 +9,6 @@
 
 
 
-struct Splash_screen : public Project_window {
-	Splash_screen(Point xy, int w, int h, const string& title)
-		:Project_window{ xy,w,h,title },
-		show_instructions{ Point{ 360 - 64,360 + 32 }, 128, 64, "Instuctions",  [](Address, Address pw) { reference_to<Splash_screen>(pw).set_state(Game_state(Instruct));} },
-		play_button{ Point{ 360 - 64,360 - 32 }, 128, 64, "Start",  [](Address, Address pw) {  reference_to<Splash_screen>(pw).set_state(Game_state(Level)); } },
-		name_entry{ In_box(Point(x_max() - 310, 0), 70, 30, "Enter initials") }
-	{
-		attach(play_button);
-		attach(show_instructions);
-		attach(game_name);
-		attach(team_info);
-		attach(team_roster);
-		attach(name_entry);
-	}
-
-	string get_username() {
-		return name_entry.get_string();
-	}
-
-private:
-	Text game_name = Text{ Point{ 100,100 }, "Fifteen Game" };
-	Text team_info = Text{ Point{ 100,150 }, "Team 41: TeamName" };
-	Text team_roster = Text{ Point{ 100,200 }, "Charles Wong Savannah Yu Cindy Zhang Eric Zhang" };
-
-
-	Button show_instructions;
-	Button play_button;
-	In_box name_entry;
-};
-
 struct Game_manager {
 
 	Game_manager()
