@@ -1,32 +1,36 @@
 YAY 120
 
-YAY 90
+YAY 120
 
 YAY 90
 
-YAY 80
+YAY 90
 
 YAY 80
 
 YAY 80
 
-YAY 20
+YAY 80
+
+YAY 40
 
 YAY 20
 
 YAY 20
 
 YAY 20
+
+YAY 20
+
+-- 10
+
+YAY 10
 
 -- 10
 
 -- 10
 
 YAY 10
-
-YAY 10
-
--- 10
 
 -- 10
 

@@ -346,6 +346,7 @@
 				attach(tiles[i].red_tile);
 				detach(tiles[i].green_tile);
 			}
+			attach(tiles[i].tile_label);
 		}
 		Fl::redraw();
 	}
