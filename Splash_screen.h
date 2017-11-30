@@ -11,9 +11,9 @@ struct Splash_screen : public Project_window {
 	string get_username();
 
 private:
-	Text game_name = Text{ Point{ 100,100 }, "Fifteen Game" };
-	Text team_info = Text{ Point{ 100,150 }, "Team 41: TeamName" };
-	Text team_roster = Text{ Point{ 100,200 }, "Charles Wong Savannah Yu Cindy Zhang Eric Zhang" };
+	Text game_name = Text{ Point{ 360-(720/3),90+64 }, "15 Game!" };
+	Text team_info = Text{ Point{ 360-(25*12)/2,720-90-45}, "Brought to you by: [Team Compute]" };
+	Text team_roster = Text{ Point{ 360-(40*12)/2, 720-90-20 }, "( Charles Wong     Savannah Yu     Cindy Zhang     Eric Zhang )" };
 
 
 	Button show_instructions;
