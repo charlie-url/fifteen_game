@@ -6,7 +6,7 @@
 
 #include "fifteen_game.h"
 
-enum Game_state { Default = 0, Splash = 1, Instruct = 2, Level = 3, Game_10 = 10, Game_20 = 20, Game_40 = 40, Game_80 = 80, End = 5, Quit = 6 };
+
 
 struct player_score {
 	//for task 3 and 6, assigns two different values to 1 element in a vector made of player_scores
@@ -16,50 +16,6 @@ struct player_score {
 
 
 
-struct Project_window : Graph_lib::Window {
-	Project_window(Point xy, int w, int h, const string& title)
-		:Window{ xy,w,h,title },
-		username{ Text(Point(360,650),"username") },
-		quit_button{ Point{ 70,0 }, 70, 20, "Quit",[](Address, Address pw) {reference_to<Project_window>(pw).quit(); } },
-		button_pushed{ false },
-		state{ Game_state(Default) }
-	{
-		attach(quit_button);
-	}
-
-	void set_username(string new_name) {
-		username.set_label(new_name);
-		Fl::redraw();
-	}
-
-	Game_state wait_for_button() {
-		make_current();
-		show();
-		cout << label() << endl;
-		while (!button_pushed) {
-			Fl::wait();
-		}
-		button_pushed = false;
-		hide();
-		return state;
-	}
-
-	void set_state(Game_state new_state) {
-		state = new_state;
-		button_pushed = true;
-	}
-
-	void quit() {
-		button_pushed = true;
-		make_current();
-		hide();
-		state = Game_state(Quit);
-	}
-	Text username;
-	Button quit_button;
-	bool button_pushed;
-	Game_state state;
-};
 
 struct End_screen : public Project_window {
 
