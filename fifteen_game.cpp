@@ -102,7 +102,8 @@ struct Game_screen : public Project_window {
 	Game_screen(Point xy, int w, int h, const string& title, int difficulty)
 		:Project_window{ xy,w,h,title },
 		difficulty{ difficulty },
-		hint_button{ Point(360,10), 160, 96, "Hint", [](Address, Address pw) {reference_to<Game_screen>(pw).hint();} }
+		hint_button{ Point(360,10), 160, 100, "Hint", [](Address, Address pw) {reference_to<Game_screen>(pw).hint();} },
+		advice{Point{360, 30}, "A helpful hint if you click the button"}
 	{
 		num_right = 0;
 		moves_remain = difficulty;
@@ -115,6 +116,7 @@ struct Game_screen : public Project_window {
 		attach(moves);
 		attach(right);
 		attach(hint_button);
+		attach(advice);
 		game_init();
 	}
 
@@ -222,11 +224,14 @@ struct Game_screen : public Project_window {
 		}
 		//choose best moves
 		vector<string> directions = { "Up","Down","Left","Right" };
+		string good_advice = "";
 		for (int i = 0; i < errors.size(); ++i) {
 			if (errors[i] == min_error) {
-				cout << directions[i] << endl;
+				good_advice += directions[i]+" ";
 			}
 		}
+		advice.set_label("Try one of these moves: " + good_advice);
+		Fl::redraw();
 	}
 
 
@@ -390,7 +395,8 @@ private:
 	vector<int> eighty_nums = { 0, 15, 3, 4, 12, 14, 7, 8, 11, 10, 6, 5, 13, 9, 2, 1 };
 
 	Button hint_button;
-	Text moves = Text{ Point{360,128}, "#" };
+	Text advice;
+	Text moves = Text{ Point{360,128}, to_string(difficulty) };
 	Text right = Text{ Point{360, 148}, "##" };
 	Text leader_title = Text{ Point{ 550,200 }, "Leaderboard" };
 	Text first = Text{ Point{ 550,250 }, leaderboard()[0] };
