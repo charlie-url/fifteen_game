@@ -9,9 +9,9 @@
 
 int main() {
 	try {
+		//runs the game
 		Game_manager game = Game_manager();
 		game.run();
-		//keep_window_open();
 		return 0;
 
 	}

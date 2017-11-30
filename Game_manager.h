@@ -9,13 +9,13 @@
 
 struct Game_manager {
 
-	Game_manager();
+	Game_manager();//constructor that initializes one of each window
 
-	void run();
+	void run();//runs loop for choosing the next window to go to
 
 private:
-	int difficulty;
-	Game_state current;
+	int difficulty;//tracks the difficulty of the current round
+	Game_state current;//current game state(window)
 	string username;
 	Splash_screen splash;
 	Instruct_screen instruct;

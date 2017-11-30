@@ -8,12 +8,13 @@
 		forty_button{ Point(200,250), 320, 100, "40", [](Address, Address pw) {reference_to<Level_select>(pw).set_state(Game_state(Game_40)); } },
 		eighty_button{ Point(200,350), 320, 100, "80", [](Address, Address pw) {reference_to<Level_select>(pw).set_state(Game_state(Game_80)); } }
 	{
+		//attach difficulty options to the screen
 		attach(username);
 		set_username(user);
 		attach(ten_button);
 		attach(twenty_button);
 		attach(forty_button);
 		attach(eighty_button);
-		attach(username);
+		attach(username); //reattach username after resetting its value
 	}
 

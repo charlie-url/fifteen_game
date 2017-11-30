@@ -6,7 +6,7 @@
 
 struct Splash_screen : public Project_window {
 
-	Splash_screen(Point xy, int w, int h, const string& title);
+	Splash_screen(Point xy, int w, int h, const string& title); //Splash screen constructor
 
 	string get_username();
 
