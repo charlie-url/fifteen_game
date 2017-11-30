@@ -421,6 +421,7 @@ struct Game_screen : public Project_window {
 		if (moves_remain == 0) {
 			final_scores_list(score);
 			state = Game_state(End);
+			button_pushed = true;
 		}
 	}
 
@@ -477,14 +478,18 @@ struct Game_screen : public Project_window {
 	}
 
 	void order_tiles() {
+		for (int i = 0; i < tiles.size(); i++) {
+			detach(tiles[i]);
+		}
 		tiles = Vector_ref<Tile_button>{};
 		for (int i = 0; i < tile_bag.size(); i++) {
 			detach(tile_bag[i]);
 			tiles.push_back(tile_bag[numbers.at(i)]);//puts tiles in the correct order
-			tiles[i].set_x(i % 4);
-			tiles[i].set_y(i / 4);
+			tiles[i].set_x(i / 4);
+			tiles[i].set_y(i % 4);
 			attach(tiles[i]);
 		}
+		Fl::redraw();
 	}
 
 	void game_init() {
