@@ -96,11 +96,13 @@ struct Project_window : Graph_lib::Window {
 			Fl::wait();
 		}
 		button_pushed = false;
+		hide();
 		return state;
 	}
 
 	void set_state(Game_state new_state) {
 		state = new_state;
+		button_pushed = true;
 	}
 
 	void quit() {
@@ -575,6 +577,7 @@ struct Instruct_screen : public Project_window {
 	{
 		attach(instruct1);
 		attach(instruct2);
+		attach(go_to_levels);
 	}
 
 private:
@@ -616,51 +619,56 @@ private:
 struct Game_manager {
 
 	Game_manager()
-		:splash{ Splash_screen(Point(0, 0), 720, 720, "Splash Screen") },
-		instruct{ Instruct_screen(Point(0, 0), 720, 720, "Instruct Screen") },
-		level{ Level_select(Point(0, 0), 720, 720, "Level Select", "username") },
-		game{ Game_screen(Point(0, 0), 720, 720, "Game Screen", 10, "username") },
-		end{ End_screen(Point(0, 0), 720, 720, "End Screen", 0, "username") }
+	:splash { Splash_screen(Point(0, 0), 720, 720, "Splash Screen")},
+	instruct { Instruct_screen(Point(0, 0), 720, 720, "Instruct Screen")},
+	level { Level_select(Point(0, 0), 720, 720, "Level Select", "username")},
+	game { Game_screen(Point(0, 0), 720, 720, "Game Screen", 10, "username")},
+	end { End_screen(Point(0, 0), 720, 720, "End Screen", 0, "username")}
 	{
-		//todo : move constructors down in to the body here to have better control
-		splash.make_current();
-		splash.show();
+		instruct.hide();		
+		level.hide();
+		game.hide();
+		end.hide();	
 		current = splash.wait_for_button();
 		username = splash.get_username();
-		cout << username;
 		level.set_username(username);
 		game.set_username(username);
 		end.set_username(username);
-		splash.make_current();
-		splash.show();
+		splash.hide();
 	}
-
 	void run() {
 		while (current != Game_state(Quit)) {
 			switch (current) {
 			case (Game_state(Instruct)):
+				instruct.show();
 				current = instruct.wait_for_button();
 				break;
 			case (Game_state(Level)):
+				level.show();
 				current = level.wait_for_button();
 				break;
 			case (Game_state(Game_10)):
+				game.show();
 				game.set_difficulty(10);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_20)):
+				game.show();
 				game.set_difficulty(20);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_40)):
+				game.show();
 				game.set_difficulty(40);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_80)):
+				game.show();
 				game.set_difficulty(80);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(End)):
+				end.show();
 				current = end.wait_for_button();
 				break;
 			case (Game_state(Quit)):
@@ -690,6 +698,7 @@ int main() {
 	try {
 		Game_manager game = Game_manager();
 		game.run();
+		//keep_window_open();
 		return 0;
 
 	}
