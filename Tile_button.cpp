@@ -9,7 +9,12 @@ Tile_button::Tile_button(int x_coord, int y_coord, int number, Callback cb)
 	x_coord{ x_coord },
 	y_coord{ y_coord },
 	number{ number }
-{}
+{
+	if (number == 0) { tile_label.set_label(" "); }
+	
+	tile_label.set_font(Graph_lib::Font::screen_bold);
+	tile_label.set_color(Color::white);
+}
 
 int Tile_button::x() {
 	return x_coord;
