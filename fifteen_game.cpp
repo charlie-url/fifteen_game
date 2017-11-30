@@ -8,23 +8,6 @@
 
 
 
-struct Instruct_screen : public Project_window {
-
-
-	Instruct_screen(Point xy, int w, int h, const string& title)
-		:Project_window{ xy,w,h,title },
-		go_to_levels{ Point{ 360 - 64,360 - 32 }, 128, 64, "Start",  [](Address, Address pw) { reference_to<Instruct_screen>(pw).set_state(Game_state(Level)); } }
-	{
-		attach(instruct1);
-		attach(instruct2);
-		attach(go_to_levels);
-	}
-
-private:
-	Button go_to_levels;
-	Text instruct1 = Text{ Point{ 100,100 }, "Click a tile next to the empty tile to move the tile into the empty tile's spot. Continue" };
-	Text instruct2 = Text{ Point{ 100,115 }, "to do so until the tiles are in the correct numerical order." };
-};
 
 struct Splash_screen : public Project_window {
 	Splash_screen(Point xy, int w, int h, const string& title)

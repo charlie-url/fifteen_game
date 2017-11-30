@@ -3,3 +3,4 @@
 #include "End_screen.h"
 #include "Game_screen.h"
 #include "Level_select.h"
+#include "Instruct_screen.h"
