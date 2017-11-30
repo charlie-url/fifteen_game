@@ -465,7 +465,7 @@ struct Game_screen : public Project_window {
 	}
 
 	void order_tiles() {
-		~tiles;
+		tiles = Vector_ref<Tile_button>{};
 		for (int i = 0; i < tile_bag.size(); i++) {
 			detach(tile_bag[i]);
 			tiles.push_back(tile_bag[numbers.at(i)]);//puts tiles in the correct order
