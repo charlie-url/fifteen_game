@@ -42,6 +42,14 @@ struct Tile_button : public Button {
 		y_coord = y;
 		Fl::redraw();
 	}
+
+	void pseudo_set_xy(int x, int y) {
+		move(100 * (x - x_coord), 0);
+		x_coord = x;
+		move(0, 100 * (y - y_coord));
+		y_coord = y;
+	}
+
 	int manhattan() {
 		//do: calculate position from value
 		int ideal_x = (number - 1) % 4;
@@ -93,7 +101,9 @@ struct Game_screen : public Project_window {
 
 	Game_screen(Point xy, int w, int h, const string& title, int difficulty)
 		:Project_window{ xy,w,h,title },
-		difficulty{ difficulty }
+		difficulty{ difficulty },
+		hint_button{ Point(360,10), 160, 100, "Hint", [](Address, Address pw) {reference_to<Game_screen>(pw).hint();} },
+		advice{Point{360, 30}, "A helpful hint if you click the button"}
 	{
 		num_right = 0;
 		moves_remain = difficulty;
@@ -105,8 +115,125 @@ struct Game_screen : public Project_window {
 		attach(fifth);
 		attach(moves);
 		attach(right);
+		attach(hint_button);
+		attach(advice);
 		game_init();
 	}
+
+	void pseudo_swap(int val) {
+		//moves, but does not redraw or decrement counters
+		int empty = 0;//location of empty tile
+		int temp_x = 0;
+		int temp_y = 0;
+		bool valid_swap = false;
+		for (int i = 0; i < 16; ++i) {
+			if (tiles[i].val() == 0) {
+				empty = i;
+			}
+		}
+		if (tiles[empty].x() == tiles[val].x()) {
+			if (abs(tiles[empty].y() - tiles[val].y()) == 1) {
+				valid_swap = true;
+			}
+		}
+		if (tiles[empty].y() == tiles[val].y()) {
+			if (abs(tiles[empty].x() - tiles[val].x()) == 1) {
+				valid_swap = true;
+			}
+		}
+		if (valid_swap) {
+			temp_x = tiles[empty].x();
+			temp_y = tiles[empty].y();
+			tiles[empty].pseudo_set_xy(tiles[val].x(), tiles[val].y());
+			tiles[val].pseudo_set_xy(temp_x, temp_y);
+			//cout << "\tinvisible move of tiles" << endl;
+		}
+	}
+
+	int locate_tile(int x, int y) {
+		//returns the location in the array of the tile at (x,y)
+		for (int i = 0; i < tiles.size(); ++i) {
+			if (tiles[i].x() == x && tiles[i].y() == y) {
+				//cout << "tile found at location (" << x << ", " << y << ")" << endl;
+				return i;
+			}
+		}
+		cout << "error: tile at (" << x << "," << y << ") not found" << endl;
+	}
+
+	int locate_tile(int tile_number) {
+		for (int i = 0; i < 16; ++i) {
+			if (tiles[i].val() == tile_number) {
+				//cout << "tile found at location " << i << endl;
+				return i;
+			}
+		}
+		cout << "error, tile " << tile_number << " not found" << endl;
+	}
+
+	void hint() {
+		int empty = locate_tile(0);
+		int empty_y = tiles[empty].y();
+		int empty_x = tiles[empty].x();
+		int min_error = 160;//more than possible on one board
+		int curr_error = 0;//error of current layout
+		vector<int> errors = { 0,0,0,0 };
+		//case of upwards move (row 1 to 3)
+		if (empty_y > 0) {
+			curr_error = 0;
+			pseudo_swap(locate_tile(empty_x, empty_y - 1));
+			for (int i = 0; i < tiles.size(); ++i) {
+				curr_error += tiles[i].manhattan();
+			}
+			min_error = min(min_error, curr_error);
+			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+			errors[0] = curr_error;
+		}
+		//case of downwards move
+		if (empty_y < 3) {
+			curr_error = 0;
+			pseudo_swap(locate_tile(empty_x, empty_y + 1));
+			for (int i = 0; i < tiles.size(); ++i) {
+				curr_error += tiles[i].manhattan();
+			}
+			min_error = min(min_error, curr_error);
+			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+			errors[1] = curr_error;
+		}
+		//case of left move
+		if (empty_x > 0) {
+			curr_error = 0;
+			pseudo_swap(locate_tile(empty_x-1, empty_y));
+			for (int i = 0; i < tiles.size(); ++i) {
+				curr_error += tiles[i].manhattan();
+			}
+			min_error = min(min_error, curr_error);
+			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+			errors[2] = curr_error;
+		}
+		//case of right move
+		if (empty_x < 3) {
+			curr_error = 0;
+			pseudo_swap(locate_tile(empty_x+1, empty_y));
+			for (int i = 0; i < tiles.size(); ++i) {
+				curr_error += tiles[i].manhattan();
+			}
+			min_error = min(min_error, curr_error);
+			pseudo_swap(locate_tile(empty_x, empty_y));//reset board
+			errors[3] = curr_error;
+		}
+		//choose best moves
+		vector<string> directions = { "Up","Down","Left","Right" };
+		string good_advice = "";
+		for (int i = 0; i < errors.size(); ++i) {
+			if (errors[i] == min_error) {
+				good_advice += directions[i]+" ";
+			}
+		}
+		advice.set_label("Try one of these moves: " + good_advice);
+		Fl::redraw();
+	}
+
 
 	void number_right() {
 		num_right = 0;
@@ -167,10 +294,9 @@ struct Game_screen : public Project_window {
 			}
 		}
 
-		cout << "The tile you clicked is " << tile_num << endl;
-		cout << "Its row is " << tiles[place].y() << endl;
-		cout << "Its col is " << tiles[place].x() << endl;
-		cout << "Manhattan distance is " << tiles[place].manhattan() << endl;
+		cout << "The tile you clicked is " << tile_num;
+		cout << " (" << tiles[place].y() << "," << tiles[place].x() << ")" << endl;
+		cout << "Manhattan: " << tiles[place].manhattan() << endl;
 		swap(place);
 	}
 
@@ -268,7 +394,9 @@ private:
 	vector<int> forty_nums = { 6, 10, 9, 14, 5, 13, 15, 12, 11, 2, 7, 8, 4, 1, 3, 0 };
 	vector<int> eighty_nums = { 0, 15, 3, 4, 12, 14, 7, 8, 11, 10, 6, 5, 13, 9, 2, 1 };
 
-	Text moves = Text{ Point{360,128}, "#" };
+	Button hint_button;
+	Text advice;
+	Text moves = Text{ Point{360,128}, to_string(difficulty) };
 	Text right = Text{ Point{360, 148}, "##" };
 	Text leader_title = Text{ Point{ 550,200 }, "Leaderboard" };
 	Text first = Text{ Point{ 550,250 }, leaderboard()[0] };
