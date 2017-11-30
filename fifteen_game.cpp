@@ -109,6 +109,7 @@ struct End_screen : public Project_window {
 		attach(score);
 	}
 
+
 private:
 	string text_score; 
 	Text score = Text{ Point{100,100}, text_score};
@@ -263,7 +264,7 @@ struct Game_screen : public Project_window {
 		right.set_label(to_string(num_right));
 	}
 
-	vector<string> leaderboard()
+	vector<player_score> pulling_scores()
 	{
 		vector<player_score> original_scores;
 		ifstream Scores;
@@ -293,15 +294,20 @@ struct Game_screen : public Project_window {
 		while (Scores >> set_scores.name >> set_scores.score) {
 			original_scores.push_back(set_scores);
 		}
-		Scores.close();//can put into a separate file later
+		Scores.close();//can put into a separate file later	
+
+		return original_scores;
+
+	}
+	vector<string> leaderboard() {
 		vector<string>top_5;
+
 		for (int i = 0; i < 5; ++i) {
-			string combined_name_score = original_scores[i].name + "         " + to_string(original_scores[i].score);
+			string combined_name_score = pulling_scores()[i].name + "         " + to_string(pulling_scores()[i].score);
 			top_5.push_back(combined_name_score);
 		}
 
 		return top_5;
-
 	}
 
 	void tile(int tile_num) {
