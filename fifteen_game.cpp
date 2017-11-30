@@ -356,7 +356,7 @@ struct Game_screen : public Project_window {
 			--moves_remain;
 			moves.set_label(to_string(moves_remain));
 			if(moves_remain == 0) {
-				int score = difficulty * num_right;
+				int score = difficulty * (16 - num_right);
 				game_over(score);
 			}
 		}
