@@ -1,5 +1,5 @@
 #ifndef PROJECT_WINDOW_GUARD
-#define PROJECT_WInDOW_GUARD 1
+#define PROJECT_WINDOW_GUARD 1
 
 #include "lib/std_lib_facilities_5.h"
 #include "lib/Window.h"

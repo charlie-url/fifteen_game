@@ -14,33 +14,6 @@ struct player_score {
 	int score;
 };
 
-
-
-
-struct End_screen : public Project_window {
-
-
-	End_screen(Point xy, int w, int h, const string& title, int final_player_score, string user)
-		:Project_window{ xy,w,h,title },
-		new_game_button{ Point{ 150,70 }, 70, 70, "New Game",[](Address, Address pw) { reference_to<End_screen>(pw).set_state(Game_state(Level)); } },
-		final_player_score{ final_player_score }
-	{
-		cout << final_player_score << endl;
-		score.set_label("Final Score: " + to_string(final_player_score));
-		attach(username);
-		attach(score);
-		set_username(user);
-		attach(new_game_button);
-	}
-
-
-private:
-	Button new_game_button;
-	string text_score;
-	Text score = Text{ Point{ 100,100 }, text_score };
-	int final_player_score;
-};
-
 bool operator<(player_score p1, player_score p2) {
 	if (p1.score < p2.score) {
 		return true;
@@ -49,6 +22,9 @@ bool operator<(player_score p1, player_score p2) {
 		return false;
 	}
 }
+
+
+
 
 struct Game_screen : public Project_window {
 
