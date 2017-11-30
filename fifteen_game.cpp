@@ -178,6 +178,8 @@ struct Game_screen : public Project_window {
 
 	void set_difficulty(int diff) {
 		difficulty = diff;
+		moves_remain = diff;
+		load_values();
 		order_tiles();
 	}
 
