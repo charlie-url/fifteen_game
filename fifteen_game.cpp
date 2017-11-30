@@ -4,6 +4,7 @@
 #include "FL/Fl_JPEG_Image.H"
 #include "lib/Simple_window.h"
 
+#include "fifteen_game.h"
 
 enum Game_state { Default = 0, Splash = 1, Instruct = 2, Level = 3, Game_10 = 10, Game_20 = 20, Game_40 = 40, Game_80 = 80, End = 5, Quit = 6 };
 
@@ -14,63 +15,6 @@ struct player_score {
 };
 
 
-struct Tile_button : public Button {
-	Tile_button(int x_coord, int y_coord, int number, Callback cb)
-		:Button{ Point(100 + (100 * x_coord),200 + (100 * y_coord)),100, 100, to_string(number), cb },
-		x_coord{ x_coord },
-		y_coord{ y_coord },
-		number{ number }
-	{}
-
-	int x() {
-		return x_coord;
-	}
-
-	int y() {
-		return y_coord;
-	}
-	int val() {
-		return number;
-	}
-	void set_x(int x) {
-
-		move(100 * (x - x_coord), 0);
-		x_coord = x;
-		Fl::redraw();
-	}
-
-	void set_y(int y) {
-		move(0, 100 * (y - y_coord));
-		y_coord = y;
-		Fl::redraw();
-	}
-
-	void pseudo_set_xy(int x, int y) {
-		move(100 * (x - x_coord), 0);
-		x_coord = x;
-		move(0, 100 * (y - y_coord));
-		y_coord = y;
-	}
-
-	int manhattan() {
-		//do: calculate position from value
-		int ideal_x = (number - 1) % 4;
-		int ideal_y = (number - 1) / 4;
-		if (number == 0) {//blank in bottom right
-			ideal_x = 3;
-			ideal_y = 3;
-		}
-		int dy = abs(y_coord - ideal_y);
-		int dx = abs(x_coord - ideal_x);
-		return (dx + dy);
-	}
-
-
-private:
-	int x_coord;
-	int y_coord;
-	int number;
-};
 
 struct Project_window : Graph_lib::Window {
 	Project_window(Point xy, int w, int h, const string& title)
