@@ -74,7 +74,7 @@ struct Project_window : Graph_lib::Window {
 
 	Project_window(Point xy, int w, int h, const string& title)
 		:Window{ xy,w,h,title },
-		quit_button{ Point{ 70,0 }, 70, 20, "Quit",[](Address, Address pw) {reference_to<Project_window>(pw).quit();} },
+		quit_button{ Point{ 70,0 }, 70, 20, "Quit",[](Address, Address pw) {reference_to<Project_window>(pw).quit(); } },
 		button_pushed{ false }
 	{
 		attach(quit_button);
@@ -87,6 +87,7 @@ struct Project_window : Graph_lib::Window {
 		button_pushed = false;
 	}
 
+
 	void quit() {
 		button_pushed = true;
 		make_current();
@@ -95,6 +96,8 @@ struct Project_window : Graph_lib::Window {
 
 	Button quit_button;
 	bool button_pushed;
+
+	//string current_player_name();
 };
 
 struct End_screen : public Project_window {
@@ -104,25 +107,34 @@ struct End_screen : public Project_window {
 		:Project_window{ xy,w,h,title },
 		final_player_score{ final_player_score }
 	{
-		cout << final_player_score << endl;	
+		cout << final_player_score << endl;
 		score.set_label("Final Score: " + to_string(final_player_score));
 		attach(score);
 	}
 
 
 private:
-	string text_score; 
-	Text score = Text{ Point{100,100}, text_score};
+	string text_score;
+	Text score = Text{ Point{ 100,100 }, text_score };
 	int final_player_score;
 };
+
+bool operator<(player_score p1, player_score p2) {
+	if (p1.score < p2.score) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 
 struct Game_screen : public Project_window {
 
 	Game_screen(Point xy, int w, int h, const string& title, int difficulty)
 		:Project_window{ xy,w,h,title },
 		difficulty{ difficulty },
-		hint_button{ Point(360,10), 160, 100, "Hint", [](Address, Address pw) {reference_to<Game_screen>(pw).hint();} },
-		advice{Point{360, 30}, "A helpful hint if you click the button"}
+		hint_button{ Point(360,10), 160, 100, "Hint", [](Address, Address pw) {reference_to<Game_screen>(pw).hint(); } },
+		advice{ Point{ 360, 30 }, "A helpful hint if you click the button" }
 	{
 		num_right = 0;
 		moves_remain = difficulty;
@@ -132,6 +144,7 @@ struct Game_screen : public Project_window {
 		attach(third);
 		attach(fourth);
 		attach(fifth);
+		//attach(current_player);
 		attach(moves);
 		attach(right);
 		attach(hint_button);
@@ -222,7 +235,7 @@ struct Game_screen : public Project_window {
 		//case of left move
 		if (empty_x > 0) {
 			curr_error = 0;
-			pseudo_swap(locate_tile(empty_x-1, empty_y));
+			pseudo_swap(locate_tile(empty_x - 1, empty_y));
 			for (int i = 0; i < tiles.size(); ++i) {
 				curr_error += tiles[i].manhattan();
 			}
@@ -233,7 +246,7 @@ struct Game_screen : public Project_window {
 		//case of right move
 		if (empty_x < 3) {
 			curr_error = 0;
-			pseudo_swap(locate_tile(empty_x+1, empty_y));
+			pseudo_swap(locate_tile(empty_x + 1, empty_y));
 			for (int i = 0; i < tiles.size(); ++i) {
 				curr_error += tiles[i].manhattan();
 			}
@@ -246,7 +259,7 @@ struct Game_screen : public Project_window {
 		string good_advice = "";
 		for (int i = 0; i < errors.size(); ++i) {
 			if (errors[i] == min_error) {
-				good_advice += directions[i]+" ";
+				good_advice += directions[i] + " ";
 			}
 		}
 		advice.set_label("Try one of these moves: " + good_advice);
@@ -312,7 +325,7 @@ struct Game_screen : public Project_window {
 
 	void tile(int tile_num) {
 		int place = 0;
-		for (int i = 0; i < tiles.size();++i) {
+		for (int i = 0; i < tiles.size(); ++i) {
 			if (tiles[i].val() == tile_num) {
 				place = i;
 			}
@@ -330,6 +343,53 @@ struct Game_screen : public Project_window {
 		quit();
 		End_screen end_game(Point(0, 0), 720, 720, "Game Over", final_score);
 		end_game.wait_for_button();
+	}
+
+
+	void final_scores_list(int final_score) {
+		string fake_player_name = "YAY";
+		cout << "name: " << fake_player_name << endl;
+		vector<player_score>sort_scores = pulling_scores();
+
+		player_score set_player_info;
+		set_player_info.name = fake_player_name;
+		set_player_info.score = final_score;
+
+
+		sort_scores.push_back(set_player_info);
+		sort(sort_scores.begin(), sort_scores.end());
+
+		ofstream new_score_list;
+		switch (difficulty) {
+		case 10:
+			new_score_list.open("usr/Scores_list_10.txt");
+			break;
+		case 20:
+			new_score_list.open("usr/Scores_list_20.txt");
+			break;
+		case 40:
+			new_score_list.open("usr/Scores_list_40.txt");
+			break;
+		case 80:
+			new_score_list.open("usr/Scores_list_80.txt");
+			break;
+		default:
+			cout << "Error with selecting difficulty, cannot display scores" << endl;
+		}
+		if (new_score_list.fail()) {
+			cerr << "Error Opening File" << endl;
+			keep_window_open();
+			exit(1);
+		}
+		cout << "what is entered into the txt file: " << endl;
+		for (int i = sort_scores.size() - 1; i >= 0; --i) {
+			new_score_list << sort_scores[i].name << " " << sort_scores[i].score << endl << endl;
+			cout << sort_scores[i].name << "   " << sort_scores[i].score << endl;
+		}
+
+		//writes the new list of player names and the scores into the file
+		new_score_list.close();
+		//closes the file 
 	}
 
 	void swap(int val) {
@@ -361,9 +421,10 @@ struct Game_screen : public Project_window {
 			tiles[val].set_y(temp_y);
 			--moves_remain;
 			moves.set_label(to_string(moves_remain));
-			if(moves_remain == 0) {
+			if (moves_remain == 0) {
 				int score = difficulty * num_right;
 				game_over(score);
+				final_scores_list(score);
 			}
 		}
 		number_right();
@@ -388,22 +449,22 @@ struct Game_screen : public Project_window {
 
 	void game_init() {
 		load_values();
-		tile_bag.push_back(new Tile_button{ 0,0,0,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(0);} });
-		tile_bag.push_back(new Tile_button{ 0,0,1,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(1);} });
-		tile_bag.push_back(new Tile_button{ 0,0,2,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(2);} });
-		tile_bag.push_back(new Tile_button{ 0,0,3,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(3);} });
-		tile_bag.push_back(new Tile_button{ 0,0,4,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(4);} });
-		tile_bag.push_back(new Tile_button{ 0,0,5,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(5);} });
-		tile_bag.push_back(new Tile_button{ 0,0,6,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(6);} });
-		tile_bag.push_back(new Tile_button{ 0,0,7,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(7);} });
-		tile_bag.push_back(new Tile_button{ 0,0,8,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(8);} });
-		tile_bag.push_back(new Tile_button{ 0,0,9,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(9);} });
-		tile_bag.push_back(new Tile_button{ 0,0,10,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(10);} });
-		tile_bag.push_back(new Tile_button{ 0,0,11,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(11);} });
-		tile_bag.push_back(new Tile_button{ 0,0,12,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(12);} });
-		tile_bag.push_back(new Tile_button{ 0,0,13,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(13);} });
-		tile_bag.push_back(new Tile_button{ 0,0,14,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(14);} });
-		tile_bag.push_back(new Tile_button{ 0,0,15,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(15);} });
+		tile_bag.push_back(new Tile_button{ 0,0,0,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(0); } });
+		tile_bag.push_back(new Tile_button{ 0,0,1,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(1); } });
+		tile_bag.push_back(new Tile_button{ 0,0,2,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(2); } });
+		tile_bag.push_back(new Tile_button{ 0,0,3,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(3); } });
+		tile_bag.push_back(new Tile_button{ 0,0,4,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(4); } });
+		tile_bag.push_back(new Tile_button{ 0,0,5,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(5); } });
+		tile_bag.push_back(new Tile_button{ 0,0,6,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(6); } });
+		tile_bag.push_back(new Tile_button{ 0,0,7,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(7); } });
+		tile_bag.push_back(new Tile_button{ 0,0,8,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(8); } });
+		tile_bag.push_back(new Tile_button{ 0,0,9,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(9); } });
+		tile_bag.push_back(new Tile_button{ 0,0,10,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(10); } });
+		tile_bag.push_back(new Tile_button{ 0,0,11,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(11); } });
+		tile_bag.push_back(new Tile_button{ 0,0,12,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(12); } });
+		tile_bag.push_back(new Tile_button{ 0,0,13,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(13); } });
+		tile_bag.push_back(new Tile_button{ 0,0,14,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(14); } });
+		tile_bag.push_back(new Tile_button{ 0,0,15,[](Address,Address pw) {reference_to<Game_screen>(pw).tile(15); } });
 		for (int i = 0; i < tile_bag.size(); ++i) {
 			attach(tile_bag[i]);
 		}
@@ -432,25 +493,26 @@ private:
 
 	Button hint_button;
 	Text advice;
-	Text moves = Text{ Point{360,128}, to_string(difficulty) };
-	Text right = Text{ Point{360, 148}, "##" };
+	Text moves = Text{ Point{ 360,128 }, to_string(difficulty) };
+	Text right = Text{ Point{ 360, 148 }, "##" };
 	Text leader_title = Text{ Point{ 550,200 }, "Leaderboard" };
 	Text first = Text{ Point{ 550,250 }, leaderboard()[0] };
 	Text second = Text{ Point{ 550,300 }, leaderboard()[1] };
 	Text third = Text{ Point{ 550,350 }, leaderboard()[2] };
 	Text fourth = Text{ Point{ 550,400 }, leaderboard()[3] };
 	Text fifth = Text{ Point{ 550,450 }, leaderboard()[4] };
+	//Text current_player = Text{ Point{550, 550}, Project_window::current_player_name() };
 };
 
 struct Level_select : public Project_window {
 
 	Level_select(Point xy, int w, int h, const string& title, string name)
 		:Project_window{ xy,w,h,title },
-		ten_button{ Point(200,50), 320, 100, "10", [](Address, Address pw) {reference_to<Level_select>(pw).start_game(10);} },
-		twenty_button{ Point(200,150), 320, 100, "20", [](Address, Address pw) {reference_to<Level_select>(pw).start_game(20);} },
-		forty_button{ Point(200,250), 320, 100, "40", [](Address, Address pw) {reference_to<Level_select>(pw).start_game(40);} },
-		eighty_button{ Point(200,350), 320, 100, "80", [](Address, Address pw) {reference_to<Level_select>(pw).start_game(80);} },
-		username{ Point{360,10},name }
+		ten_button{ Point(200,50), 320, 100, "10", [](Address, Address pw) {reference_to<Level_select>(pw).start_game(10); } },
+		twenty_button{ Point(200,150), 320, 100, "20", [](Address, Address pw) {reference_to<Level_select>(pw).start_game(20); } },
+		forty_button{ Point(200,250), 320, 100, "40", [](Address, Address pw) {reference_to<Level_select>(pw).start_game(40); } },
+		eighty_button{ Point(200,350), 320, 100, "80", [](Address, Address pw) {reference_to<Level_select>(pw).start_game(80); } },
+		username{ Point{ 360,10 },name }
 	{
 		attach(ten_button);
 		attach(twenty_button);
@@ -467,6 +529,8 @@ struct Level_select : public Project_window {
 		Game_screen game(Point(0, 0), 720, 720, "Game Screen", diff);
 		game.wait_for_button();
 	}
+
+
 private:
 
 	Button ten_button;
@@ -481,6 +545,10 @@ private:
 
 	Text username;
 
+
+
+
+
 };
 
 struct Instruct_screen : public Project_window {
@@ -494,8 +562,8 @@ struct Instruct_screen : public Project_window {
 	}
 
 private:
-	Text instruct1 = Text{ Point{100,100}, "Click a tile next to the empty tile to move the tile into the empty tile's spot. Continue" };
-	Text instruct2 = Text{ Point{100,115}, "to do so until the tiles are in the correct numerical order." };
+	Text instruct1 = Text{ Point{ 100,100 }, "Click a tile next to the empty tile to move the tile into the empty tile's spot. Continue" };
+	Text instruct2 = Text{ Point{ 100,115 }, "to do so until the tiles are in the correct numerical order." };
 
 };
 
@@ -509,6 +577,7 @@ struct Splash_screen : public Project_window {
 		show_instructions{ Point{ 360 - 64,360 + 32 }, 128, 64, "Instuctions",  [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); } },
 		play_button{ Point{ 360 - 64,360 - 32 }, 128, 64, "Start",  [](Address, Address pw) { reference_to<Splash_screen>(pw).view_levels(); } },
 		username(Point(x_max() - 310, 0), 70, 30, "Enter initial")
+
 	{
 		attach(play_button);
 		attach(show_instructions);
@@ -519,13 +588,13 @@ struct Splash_screen : public Project_window {
 	}
 
 
-
 	void view_levels() {
 		cout << "[level screen]" << endl;
 		cout << username.get_string() << endl;
 		quit();
 		Level_select levels(Point(0, 0), 720, 720, "Level Select", username.get_string());
 		levels.wait_for_button();
+
 	}
 
 
@@ -538,8 +607,9 @@ struct Splash_screen : public Project_window {
 		Fl::redraw();
 	}
 
+	//string &get_current_player_name = &username.get_string();
 private:
-	Text game_name = Text{ Point{100,100}, "Fifteen Game" };
+	Text game_name = Text{ Point{ 100,100 }, "Fifteen Game" };
 	Text team_info = Text{ Point{ 100,150 }, "Team 41: TeamName" };
 	Text team_roster = Text{ Point{ 100,200 }, "Charles Wong Savannah Yu Cindy Zhang Eric Zhang" };
 
@@ -549,6 +619,10 @@ private:
 	In_box username;
 };
 
+/*string Project_window::current_player_name() {
+
+return Splash_screen::&get_current_player_name();
+}*/
 
 int main() {
 	try {
