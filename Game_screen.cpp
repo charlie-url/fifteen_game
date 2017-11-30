@@ -338,6 +338,14 @@
 			tiles[i].set_x(i / 4);
 			tiles[i].set_y(i % 4);
 			attach(tiles[i]);
+			if (tiles[i].manhattan() == 0) {
+				attach(tiles[i].green_tile);
+				detach(tiles[i].red_tile);
+			}
+			else {
+				attach(tiles[i].red_tile);
+				detach(tiles[i].green_tile);
+			}
 		}
 		Fl::redraw();
 	}

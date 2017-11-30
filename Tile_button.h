@@ -17,11 +17,14 @@ struct Tile_button : public Button {
 	void pseudo_set_xy(int x, int y);
 	int manhattan();
 
+	Image red_tile;
+	Image green_tile;
 
 private:
 	int x_coord;
 	int y_coord;
 	int number;
+
 };
 #endif //TILE_GUARD 
 
