@@ -148,6 +148,7 @@ struct Game_screen : public Project_window {
 		username{ Point{ 360,10 }, user },
 		user{user}
 	{
+		score = 0;
 		num_right = 0;
 		moves_remain = difficulty;
 		attach(leader_title);
@@ -161,6 +162,9 @@ struct Game_screen : public Project_window {
 		attach(hint_button);
 		attach(advice);
 		game_init();
+	}
+	int get_score() {
+		return score;
 	}
 
 	void pseudo_swap(int val) {
@@ -395,6 +399,13 @@ struct Game_screen : public Project_window {
 		//closes the file 
 	}
 
+	void check_game_over() {
+		if (moves_remain == 0) {
+			final_scores_list(score);
+			state = Game_state(End);
+		}
+	}
+
 	void swap(int val) {
 		int empty = 0;//location of empty tile
 		int temp_x = 0;
@@ -424,11 +435,8 @@ struct Game_screen : public Project_window {
 			tiles[val].set_y(temp_y);
 			--moves_remain;
 			moves.set_label(to_string(moves_remain));
-			if (moves_remain == 0) {
-				int score = difficulty * (16 - num_right);
-				final_scores_list(score);
-				state = Game_state(End);
-			}
+			score = difficulty * (16 - num_right);
+			check_game_over();
 		}
 		number_right();
 	}
@@ -482,6 +490,7 @@ struct Game_screen : public Project_window {
 	}
 
 private:
+	int score;
 	int moves_remain;
 	int difficulty;
 	int num_right;
@@ -609,25 +618,31 @@ struct Game_manager {
 				current = instruct.wait_for_button();
 				break;
 			case (Game_state(Level)):
+				level = Level_select(Point(0, 0), 720, 720, "Levels", username);
 				current = level.wait_for_button();
 				break;
 			case (Game_state(Game_10)):
-				current = level.wait_for_button();
+				game = Game_screen(Point(0, 0), 720, 720, "Game 10", 10, username);
+				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_20)):
-				current = end.wait_for_button();
+				game = Game_screen(Point(0, 0), 720, 720, "Game 20", 20, username);
+				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_40)):
-				current = end.wait_for_button();
+				game = Game_screen(Point(0, 0), 720, 720, "Game 40", 20, username);
+				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_80)):
-				current = end.wait_for_button();
+				game = Game_screen(Point(0, 0), 720, 720, "Game 80", 20, username);
+				current = game.wait_for_button();
 				break;
 			case (Game_state(End)):
+				end = End_screen(Point(0, 0), 720, 720, "Game Over", game.get_score(), username);
 				current = end.wait_for_button();
 				break;
 			case (Game_state(Quit)):
-				current = end.wait_for_button();
+				current = Game_state(Quit);
 				break;
 			default:
 				cout << "Unexpected game state." << endl;
