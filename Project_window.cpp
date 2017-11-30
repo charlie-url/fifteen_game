@@ -17,6 +17,7 @@
 	void Project_window::set_username(string new_name) {
 		username.set_label(new_name);
 		leaderboard_username.set_label(new_name);
+		player_name = new_name;
 		Fl::redraw();
 	}
 
