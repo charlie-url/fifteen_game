@@ -6,6 +6,7 @@
 	Project_window::Project_window(Point xy, int w, int h, const string& title)
 		:Window{ xy,w,h,title },
 		username{ Text(Point(360,650),"username") },
+		leaderboard_username{ Text(Point(550,525), "username") },
 		quit_button{ Point{ 70,0 }, 70, 20, "Quit",[](Address, Address pw) {reference_to<Project_window>(pw).quit(); } },
 		button_pushed{ false },
 		state{ Game_state(Default) }
@@ -15,6 +16,7 @@
 
 	void Project_window::set_username(string new_name) {
 		username.set_label(new_name);
+		leaderboard_username.set_label(new_name);
 		Fl::redraw();
 	}
 

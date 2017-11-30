@@ -18,6 +18,7 @@ struct Game_screen : public Project_window {
 	int locate_tile(int tile_number);
 	void hint();
 	void number_right();
+	string player_name;
 	vector<player_score> pulling_scores();
 	vector<string> leaderboard();
 	void tile(int tile_num);
