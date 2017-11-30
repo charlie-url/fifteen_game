@@ -96,13 +96,13 @@ struct End_screen : public Project_window {
 		:Project_window{ xy,w,h,title },
 		final_player_score{ final_player_score }
 	{
-		cout << final_player_score << endl;
-		cout << "to string " << to_string(final_player_score) << endl;
+		cout << final_player_score << endl;	
+		score.set_label("Final Score: " + to_string(final_player_score));
 		attach(score);
 	}
 
 private:
-	const string text_score = "Final Score: " + to_string(final_player_score);
+	string text_score; 
 	Text score = Text{ Point{100,100}, text_score};
 	int final_player_score;
 };
