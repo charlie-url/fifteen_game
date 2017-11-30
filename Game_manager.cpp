@@ -36,6 +36,7 @@
 				game.set_username(username);
 				game.set_difficulty(10);
 				current = game.wait_for_button();
+				cout << game.username.lab << endl;
 				break;
 			case (Game_state(Game_20)):
 				game.show();

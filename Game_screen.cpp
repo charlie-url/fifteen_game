@@ -222,7 +222,7 @@ void Game_screen::tile(int tile_num) {
 
 
 void Game_screen::final_scores_list(int final_score) {
-	cout << "name: " << player_name << endl;
+	cout << "name: " << username.lab << endl;
 	vector<player_score>sort_scores = pulling_scores();
 
 	player_score set_player_info;
