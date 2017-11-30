@@ -5,6 +5,8 @@
 #include "lib/Simple_window.h"
 
 
+enum Game_state { Default = 0, Splash = 1, Instruct = 2, Level = 3, Game_10 = 10, Game_20 = 20, Game_40 = 40, Game_80 = 80, End = 5, Quit = 6 };
+
 struct player_score {
 	//for task 3 and 6, assigns two different values to 1 element in a vector made of player_scores
 	string name;
@@ -71,48 +73,69 @@ private:
 };
 
 struct Project_window : Graph_lib::Window {
-
 	Project_window(Point xy, int w, int h, const string& title)
 		:Window{ xy,w,h,title },
+		username{ Text(Point(360,650),"username") },
 		quit_button{ Point{ 70,0 }, 70, 20, "Quit",[](Address, Address pw) {reference_to<Project_window>(pw).quit(); } },
-		button_pushed{ false }
+		button_pushed{ false },
+		state{ Game_state(Default) }
 	{
 		attach(quit_button);
 	}
 
-	void wait_for_button() {
+	void set_username(string new_name) {
+		username.set_label(new_name);
+		Fl::redraw();
+	}
+
+	Game_state wait_for_button() {
+		make_current();
+		show();
+		cout << label() << endl;
 		while (!button_pushed) {
 			Fl::wait();
 		}
 		button_pushed = false;
+		hide();
+		return state;
 	}
 
+	void set_state(Game_state new_state) {
+		state = new_state;
+		button_pushed = true;
+	}
 
 	void quit() {
 		button_pushed = true;
 		make_current();
 		hide();
+		state = Game_state(Quit);
 	}
-
+	Text username;
 	Button quit_button;
 	bool button_pushed;
-
-	//string current_player_name();
+	Game_state state;
 };
 
 struct End_screen : public Project_window {
 
 
-	End_screen(Point xy, int w, int h, const string& title, int final_player_score)
+	End_screen(Point xy, int w, int h, const string& title, int final_player_score, string user)
 		:Project_window{ xy,w,h,title },
+		new_game_button{ Point{ 150,70 }, 70, 70, "New Game",[](Address, Address pw) { reference_to<End_screen>(pw).set_state(Game_state(Level)); } },
 		final_player_score{ final_player_score }
 	{
 		cout << final_player_score << endl;
 		score.set_label("Final Score: " + to_string(final_player_score));
+		attach(username);
 		attach(score);
+		set_username(user);
+		attach(new_game_button);
 	}
 
+
 private:
+	Button new_game_button;
 	string text_score;
 	Text score = Text{ Point{ 100,100 }, text_score };
 	int final_player_score;
@@ -129,12 +152,15 @@ bool operator<(player_score p1, player_score p2) {
 
 struct Game_screen : public Project_window {
 
-	Game_screen(Point xy, int w, int h, const string& title, int difficulty)
+	Game_screen(Point xy, int w, int h, const string& title, int difficulty, string user)
 		:Project_window{ xy,w,h,title },
 		difficulty{ difficulty },
 		hint_button{ Point(360,10), 160, 100, "Hint", [](Address, Address pw) {reference_to<Game_screen>(pw).hint(); } },
 		advice{ Point{ 360, 30 }, "A helpful hint if you click the button" }
 	{
+		attach(username);
+		set_username(user);
+		score = 0;
 		num_right = 0;
 		moves_remain = difficulty;
 		attach(leader_title);
@@ -143,12 +169,22 @@ struct Game_screen : public Project_window {
 		attach(third);
 		attach(fourth);
 		attach(fifth);
-		//attach(current_player);
 		attach(moves);
 		attach(right);
 		attach(hint_button);
 		attach(advice);
 		game_init();
+	}
+
+	void set_difficulty(int diff) {
+		difficulty = diff;
+		moves_remain = diff;
+		load_values();
+		order_tiles();
+	}
+
+	int get_score() {
+		return score;
 	}
 
 	void pseudo_swap(int val) {
@@ -336,14 +372,6 @@ struct Game_screen : public Project_window {
 		swap(place);
 	}
 
-	void game_over(int final_score) {
-		cout << "Game over" << endl;
-		cout << "Final score is " << final_score << endl;
-		quit();
-		End_screen end_game(Point(0, 0), 720, 720, "Game Over", final_score);
-		end_game.wait_for_button();
-	}
-
 
 	void final_scores_list(int final_score) {
 		string fake_player_name = "YAY";
@@ -391,6 +419,14 @@ struct Game_screen : public Project_window {
 		//closes the file 
 	}
 
+	void check_game_over() {
+		if (moves_remain == 0) {
+			final_scores_list(score);
+			state = Game_state(End);
+			button_pushed = true;
+		}
+	}
+
 	void swap(int val) {
 		int empty = 0;//location of empty tile
 		int temp_x = 0;
@@ -420,11 +456,8 @@ struct Game_screen : public Project_window {
 			tiles[val].set_y(temp_y);
 			--moves_remain;
 			moves.set_label(to_string(moves_remain));
-			if(moves_remain == 0) {
-				int score = difficulty * (16 - num_right);
-				game_over(score);
-				final_scores_list(score);
-			}
+			score = difficulty * (16 - num_right);
+			check_game_over();
 		}
 		number_right();
 	}
@@ -444,6 +477,21 @@ struct Game_screen : public Project_window {
 		default: cout << "error in choosing difficulty";
 			break;
 		}
+	}
+
+	void order_tiles() {
+		for (int i = 0; i < tiles.size(); i++) {
+			detach(tiles[i]);
+		}
+		tiles = Vector_ref<Tile_button>{};
+		for (int i = 0; i < tile_bag.size(); i++) {
+			detach(tile_bag[i]);
+			tiles.push_back(tile_bag[numbers.at(i)]);//puts tiles in the correct order
+			tiles[i].set_x(i / 4);
+			tiles[i].set_y(i % 4);
+			attach(tiles[i]);
+		}
+		Fl::redraw();
 	}
 
 	void game_init() {
@@ -467,17 +515,12 @@ struct Game_screen : public Project_window {
 		for (int i = 0; i < tile_bag.size(); ++i) {
 			attach(tile_bag[i]);
 		}
-		cout << "done" << endl;
-		for (int i = 0; i < tile_bag.size(); i++) {
-			detach(tile_bag[i]);
-			tiles.push_back(tile_bag[numbers.at(i)]);//puts tiles in the correct order
-			tiles[i].set_x(i % 4);
-			tiles[i].set_y(i / 4);
-			attach(tiles[i]);
-		}
+		order_tiles();
+
 	}
 
 private:
+	int score;
 	int moves_remain;
 	int difficulty;
 	int num_right;
@@ -500,19 +543,19 @@ private:
 	Text third = Text{ Point{ 550,350 }, leaderboard()[2] };
 	Text fourth = Text{ Point{ 550,400 }, leaderboard()[3] };
 	Text fifth = Text{ Point{ 550,450 }, leaderboard()[4] };
-	//Text current_player = Text{ Point{550, 550}, Project_window::current_player_name() };
 };
 
 struct Level_select : public Project_window {
 
-	Level_select(Point xy, int w, int h, const string& title, string name)
+	Level_select(Point xy, int w, int h, const string& title, string user)
 		:Project_window{ xy,w,h,title },
-		ten_button{ Point(200,50), 320, 100, "10", [](Address, Address pw) {reference_to<Level_select>(pw).start_game(10); } },
-		twenty_button{ Point(200,150), 320, 100, "20", [](Address, Address pw) {reference_to<Level_select>(pw).start_game(20); } },
-		forty_button{ Point(200,250), 320, 100, "40", [](Address, Address pw) {reference_to<Level_select>(pw).start_game(40); } },
-		eighty_button{ Point(200,350), 320, 100, "80", [](Address, Address pw) {reference_to<Level_select>(pw).start_game(80); } },
-		username{ Point{ 360,10 },name }
+		ten_button{ Point(200,50), 320, 100, "10", [](Address, Address pw) { reference_to<Level_select>(pw).set_state(Game_state(Game_10));} },
+		twenty_button{ Point(200,150), 320, 100, "20", [](Address, Address pw) {reference_to<Level_select>(pw).set_state(Game_state(Game_20)); } },
+		forty_button{ Point(200,250), 320, 100, "40", [](Address, Address pw) {reference_to<Level_select>(pw).set_state(Game_state(Game_40)); } },
+		eighty_button{ Point(200,350), 320, 100, "80", [](Address, Address pw) {reference_to<Level_select>(pw).set_state(Game_state(Game_80)); } }
 	{
+		attach(username);
+		set_username(user);
 		attach(ten_button);
 		attach(twenty_button);
 		attach(forty_button);
@@ -520,18 +563,7 @@ struct Level_select : public Project_window {
 		attach(username);
 	}
 
-	void start_game(int diff) {
-		button_pushed = true;
-		cout << "[game screen]" << endl;
-		cout << diff << endl;
-		quit();
-		Game_screen game(Point(0, 0), 720, 720, "Game Screen", diff);
-		game.wait_for_button();
-	}
-
-
 private:
-
 	Button ten_button;
 	Button twenty_button;
 	Button forty_button;
@@ -541,72 +573,45 @@ private:
 	Text difficulty_20 = Text{ Point{ 100,100 }, "Difficulty 20" };
 	Text difficulty_40 = Text{ Point{ 100,100 }, "Difficulty 40" };
 	Text difficulty_80 = Text{ Point{ 100,100 }, "Difficulty 80" };
-
-	Text username;
-
-
-
-
-
 };
 
 struct Instruct_screen : public Project_window {
 
 
 	Instruct_screen(Point xy, int w, int h, const string& title)
-		:Project_window{ xy,w,h,title }
+		:Project_window{ xy,w,h,title },
+		go_to_levels{ Point{ 360 - 64,360 - 32 }, 128, 64, "Start",  [](Address, Address pw) { reference_to<Instruct_screen>(pw).set_state(Game_state(Level)); } }
 	{
 		attach(instruct1);
 		attach(instruct2);
+		attach(go_to_levels);
 	}
 
 private:
+	Button go_to_levels;
 	Text instruct1 = Text{ Point{ 100,100 }, "Click a tile next to the empty tile to move the tile into the empty tile's spot. Continue" };
 	Text instruct2 = Text{ Point{ 100,115 }, "to do so until the tiles are in the correct numerical order." };
-
 };
 
 struct Splash_screen : public Project_window {
-
-
-
 	Splash_screen(Point xy, int w, int h, const string& title)
 		:Project_window{ xy,w,h,title },
-
-		show_instructions{ Point{ 360 - 64,360 + 32 }, 128, 64, "Instuctions",  [](Address, Address pw) { reference_to<Splash_screen>(pw).instruct(); } },
-		play_button{ Point{ 360 - 64,360 - 32 }, 128, 64, "Start",  [](Address, Address pw) { reference_to<Splash_screen>(pw).view_levels(); } },
-		username(Point(x_max() - 310, 0), 70, 30, "Enter initial")
-
+		show_instructions{ Point{ 360 - 64,360 + 32 }, 128, 64, "Instuctions",  [](Address, Address pw) { reference_to<Splash_screen>(pw).set_state(Game_state(Instruct));} },
+		play_button{ Point{ 360 - 64,360 - 32 }, 128, 64, "Start",  [](Address, Address pw) {  reference_to<Splash_screen>(pw).set_state(Game_state(Level)); } },
+		name_entry{ In_box(Point(x_max() - 310, 0), 70, 30, "Enter initials") }
 	{
 		attach(play_button);
 		attach(show_instructions);
 		attach(game_name);
 		attach(team_info);
 		attach(team_roster);
-		attach(username);
+		attach(name_entry);
 	}
 
-
-	void view_levels() {
-		cout << "[level screen]" << endl;
-		cout << username.get_string() << endl;
-		quit();
-		Level_select levels(Point(0, 0), 720, 720, "Level Select", username.get_string());
-		levels.wait_for_button();
-
+	string get_username() {
+		return name_entry.get_string();
 	}
 
-
-
-	void instruct() {
-		cout << "[instructions]" << endl;
-		quit();
-		Instruct_screen instructs(Point(0, 0), 720, 720, "Instruction");
-		instructs.wait_for_button();
-		Fl::redraw();
-	}
-
-	//string &get_current_player_name = &username.get_string();
 private:
 	Text game_name = Text{ Point{ 100,100 }, "Fifteen Game" };
 	Text team_info = Text{ Point{ 100,150 }, "Team 41: TeamName" };
@@ -615,18 +620,92 @@ private:
 
 	Button show_instructions;
 	Button play_button;
-	In_box username;
+	In_box name_entry;
 };
 
-/*string Project_window::current_player_name() {
+struct Game_manager {
 
-return Splash_screen::&get_current_player_name();
-}*/
+	Game_manager()
+	:splash { Splash_screen(Point(0, 0), 720, 720, "Splash Screen")},
+	instruct { Instruct_screen(Point(0, 0), 720, 720, "Instruct Screen")},
+	level { Level_select(Point(0, 0), 720, 720, "Level Select", "username")},
+	game { Game_screen(Point(0, 0), 720, 720, "Game Screen", 10, "username")},
+	end { End_screen(Point(0, 0), 720, 720, "End Screen", 0, "username")}
+	{
+		instruct.hide();		
+		level.hide();
+		game.hide();
+		end.hide();	
+		current = splash.wait_for_button();
+		username = splash.get_username();
+		level.set_username(username);
+		game.set_username(username);
+		end.set_username(username);
+		splash.hide();
+	}
+	void run() {
+		while (current != Game_state(Quit)) {
+			switch (current) {
+			case (Game_state(Instruct)):
+				instruct.show();
+				current = instruct.wait_for_button();
+				break;
+			case (Game_state(Level)):
+				level.show();
+				current = level.wait_for_button();
+				break;
+			case (Game_state(Game_10)):
+				game.show();
+				game.set_difficulty(10);
+				current = game.wait_for_button();
+				break;
+			case (Game_state(Game_20)):
+				game.show();
+				game.set_difficulty(20);
+				current = game.wait_for_button();
+				break;
+			case (Game_state(Game_40)):
+				game.show();
+				game.set_difficulty(40);
+				current = game.wait_for_button();
+				break;
+			case (Game_state(Game_80)):
+				game.show();
+				game.set_difficulty(80);
+				current = game.wait_for_button();
+				break;
+			case (Game_state(End)):
+				end.show();
+				current = end.wait_for_button();
+				break;
+			case (Game_state(Quit)):
+				return;
+				break;
+			default:
+				cout << "Unexpected game state." << endl;
+				cout << "Quitting..." << endl;
+				return;
+				break;
+			}
+		}
+		return;
+	}
+private:
+	int difficulty;
+	Game_state current;
+	string username;
+	Splash_screen splash;
+	Instruct_screen instruct;
+	Level_select level;
+	Game_screen game;
+	End_screen end;
+};
 
 int main() {
 	try {
-		Splash_screen splash(Point(0, 0), 720, 720, "Splash Screen");
-		splash.wait_for_button();
+		Game_manager game = Game_manager();
+		game.run();
+		//keep_window_open();
 		return 0;
 
 	}
