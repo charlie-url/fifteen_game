@@ -3,17 +3,16 @@
 
 
 #include "Project_window.h"
+//create a screen for when the game ends
 struct End_screen : public Project_window {
 
+	End_screen(Point xy, int w, int h, const string& title, string user); //Constructor for our "game over" screen
 
-	End_screen(Point xy, int w, int h, const string& title, int final_player_score, string user);
-
+	void set_score(int final_score); //Setter for the final game score
 
 private:
-	Button new_game_button;
-	string text_score;
-	Text score = Text{ Point{ 100,100 }, text_score };
-	int final_player_score;
+	Button new_game_button; //button for restarting the game
+	Text score = Text{ Point{ 100,100 }, "FinalScore"}; //Displays the final score to the player
 };
 
 

@@ -11,17 +11,19 @@
 		button_pushed{ false },
 		state{ Game_state(Default) }
 	{
-		attach(quit_button);
+		attach(quit_button);//every window has a quit button
 	}
 
 	void Project_window::set_username(string new_name) {
-		username.set_label(new_name);
+
+		username.set_label(new_name);//updates placeholder username
 		leaderboard_username.set_label(new_name);
 		player_name = new_name;
+		username.set_label(new_name);
 		Fl::redraw();
 	}
 
-	Game_state Project_window::wait_for_button() {
+	Game_state Project_window::wait_for_button() {//returns enum for next window to open
 		make_current();
 		show();
 		cout << label() << endl;
@@ -33,12 +35,12 @@
 		return state;
 	}
 
-	void Project_window::set_state(Game_state new_state) {
+	void Project_window::set_state(Game_state new_state) {//setter for next window
 		state = new_state;
 		button_pushed = true;
 	}
 
-	void Project_window::quit() {
+	void Project_window::quit() {//quits the entire game
 		button_pushed = true;
 		make_current();
 		hide();
