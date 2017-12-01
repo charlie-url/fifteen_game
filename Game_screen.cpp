@@ -87,7 +87,7 @@ int Game_screen::locate_tile(int tile_number) {
 }
 
 void Game_screen::hint() {
-	int empty = locate_tile(0);
+	auto empty = locate_tile(0);
 	int empty_y = tiles[empty].y();
 	int empty_x = tiles[empty].x();
 	int min_error = 160;//more than possible on one board
