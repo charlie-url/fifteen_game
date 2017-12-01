@@ -2,13 +2,12 @@
 
 	End_screen::End_screen(Point xy, int w, int h, const string& title,string user)
 		:Project_window{ xy,w,h,title },
-		new_game_button{ Point{ 300, 300 }, 150, 100, "New Game",[](Address, Address pw) { reference_to<End_screen>(pw).set_state(Game_state(Level)); } }
+		new_game_button{ Point{360-100,720-90-120}, 200, 40, "Run another round.",[](Address, Address pw) { reference_to<End_screen>(pw).set_state(Game_state(Level)); } }
 	{
 		//display final score to user and give player option to play again
-		score.set_label("Final Score: ");
+		score.set_font_size(24);
 		attach(score);
 		set_username(user);
-		attach(username);
 		attach(new_game_button);
 	}
 

@@ -49,14 +49,16 @@ private:
 
 	Button hint_button;
 	Text advice;
-	Text moves = Text{ Point{ 360,128 }, to_string(difficulty) };
-	Text right = Text{ Point{ 360, 148 }, "##" }; //number of tiles in the correct position
-	Text leader_title = Text{ Point{ 550,200 }, "Leaderboard" };
-	Text first = Text{ Point{ 550,250 }, leaderboard()[0] };
-	Text second = Text{ Point{ 550,300 }, leaderboard()[1] };
-	Text third = Text{ Point{ 550,350 }, leaderboard()[2] };
-	Text fourth = Text{ Point{ 550,400 }, leaderboard()[3] };
-	Text fifth = Text{ Point{ 550,450 }, leaderboard()[4] };
+	Text moves = Text{ Point{ 240,90+24+48 }, to_string(difficulty) };
+	Text right = Text{ Point{ 480, 90+24+48 }, "##" }; //number of tiles in the correct position
+	Text leader_title = Text{ Point{ 720-120-(5*12),90+128+64 }, "Leaderboard" };
+	Text first = Text{ Point{ 720-120-(5*12)-20,90+128+64+50 }, leaderboard()[0] };
+	Text second = Text{ Point{ 720-120-(5*12)-20,90+128+64+100}, leaderboard()[1] };
+	Text third = Text{ Point{ 720-120-(5*12)-20,90+128+64+150}, leaderboard()[2] };
+	Text fourth = Text{ Point{ 720-120-(5*12)-20,90+128+64+200 }, leaderboard()[3] };
+	Text fifth = Text{ Point{ 720-120-(5*12)-20,90+128+64+250 }, leaderboard()[4] };
+	Text move_disp = Text{ Point{ 240-(5*18)/2, 90+24+48-14 }, "Moves Remaining" };
+	Text right_disp = Text{ Point{ 480-(5*25)/2, 90+24+48-14 }, "Tiles Placed Correctly" };
 };
 
 

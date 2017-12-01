@@ -12,7 +12,7 @@ struct End_screen : public Project_window {
 
 private:
 	Button new_game_button; //button for restarting the game
-	Text score = Text{ Point{ 100,100 }, "FinalScore"}; //Displays the final score to the player
+	Text score = Text{ Point{360-120+24,360}, "FinalScore"}; //Displays the final score to the player
 };
 
 

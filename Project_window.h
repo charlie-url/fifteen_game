@@ -22,8 +22,8 @@ struct Project_window : Graph_lib::Window {
 protected:
 	
 	string player_name;
-	Text leaderboard_username;
 	Button quit_button;
+	Text leaderboard_username;
 	bool button_pushed;
 	Game_state state;
 };
