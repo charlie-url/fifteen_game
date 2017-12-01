@@ -5,7 +5,7 @@
 
 struct Level_select : public Project_window {
 
-	Level_select(Point xy, int w, int h, const string& title, string user);
+	Level_select(Point xy, int w, int h, const string& title, string user); //Constructor for the level selection screen.
 
 private:
 	Button ten_button;

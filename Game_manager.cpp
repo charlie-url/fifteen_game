@@ -6,8 +6,8 @@
 		instruct{ Instruct_screen(Point(0, 0), 720, 720, "Instruct Screen") },
 		level{ Level_select(Point(0, 0), 720, 720, "Level Select", "username") },
 		game{ Game_screen(Point(0, 0), 720, 720, "Game Screen", 10, "username") },
-		end{ End_screen(Point(0, 0), 720, 720, "End Screen", 0, "username") }
-	{
+		end{ End_screen(Point(0, 0), 720, 720, "End Screen","username") }
+	{//hides all other screens while splash screen gathers the user name
 		instruct.hide();
 		level.hide();
 		game.hide();
@@ -20,7 +20,7 @@
 		splash.hide();
 	}
 
-	void Game_manager::run() {
+	void Game_manager::run() {//proceeds to the next window until the user quits
 		while (current != Game_state(Quit)) {
 			switch (current) {
 			case (Game_state(Instruct)):
@@ -33,32 +33,42 @@
 				break;
 			case (Game_state(Game_10)):
 				game.show();
+				game.update_highscores();
+				game.set_username(username);
 				game.set_difficulty(10);
 				current = game.wait_for_button();
+				cout << game.username.lab << endl;
 				break;
 			case (Game_state(Game_20)):
 				game.show();
+				game.update_highscores();
+				game.set_username(username);
 				game.set_difficulty(20);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_40)):
 				game.show();
+				game.update_highscores();
+				game.set_username(username);
 				game.set_difficulty(40);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_80)):
 				game.show();
+				game.update_highscores();
+				game.set_username(username);
 				game.set_difficulty(80);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(End)):
+				end.set_score(game.get_score());
 				end.show();
 				current = end.wait_for_button();
 				break;
 			case (Game_state(Quit)):
 				return;
 				break;
-			default:
+			default://some sort of error
 				cout << "Unexpected game state." << endl;
 				cout << "Quitting..." << endl;
 				return;

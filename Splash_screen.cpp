@@ -7,6 +7,7 @@
 		play_button{ Point{ 360+8+0,360+16  }, 128, 64, "Play",  [](Address, Address pw) {  reference_to<Splash_screen>(pw).set_state(Game_state(Level)); } },
 		name_entry{ In_box(Point(360-64,360-32-8), 128, 32, "") }
 	{
+		//attach play or tutorial options and team information
 		attach(play_button);
 		attach(show_instructions);
 		game_name.set_font_size(64);

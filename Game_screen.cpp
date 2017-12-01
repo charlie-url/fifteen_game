@@ -6,11 +6,12 @@ Game_screen::Game_screen(Point xy, int w, int h, const string& title, int diffic
 	hint_button{ Point(360,10), 160, 100, "Hint", [](Address, Address pw) {reference_to<Game_screen>(pw).hint(); } },
 	advice{ Point{ 360, 30 }, "A helpful hint if you click the button" }
 {
-	attach(username);
+	attach(leaderboard_username);
 	set_username(user);
 	score = 0;
 	num_right = 0;
 	moves_remain = difficulty;
+	player_name = user;
 	attach(leader_title);
 	attach(first);
 	attach(second);
@@ -30,7 +31,6 @@ void Game_screen::set_difficulty(int diff) {
 	load_values();
 	order_tiles();
 }
-
 int Game_screen::get_score() {
 	return score;
 }
@@ -160,6 +160,16 @@ void Game_screen::number_right() {
 	right.set_label(to_string(num_right));
 }
 
+void Game_screen::update_highscores() {
+	vector<player_score> new_scores = pulling_scores();
+	first.set_label(new_scores[0].name + "  " + to_string(new_scores[0].score));
+	second.set_label(new_scores[1].name + "  " + to_string(new_scores[1].score));
+	third.set_label(new_scores[2].name + "  " + to_string(new_scores[2].score));
+	fourth.set_label(new_scores[3].name + "  " + to_string(new_scores[3].score));
+	fifth.set_label(new_scores[4].name + "  " + to_string(new_scores[4].score));
+}
+
+
 vector<player_score> Game_screen::pulling_scores() {
 	vector<player_score> original_scores;
 	ifstream Scores;
@@ -222,12 +232,11 @@ void Game_screen::tile(int tile_num) {
 
 
 void Game_screen::final_scores_list(int final_score) {
-	string fake_player_name = "YAY";
-	cout << "name: " << fake_player_name << endl;
+	string player_name = username.lab;
 	vector<player_score>sort_scores = pulling_scores();
 
 	player_score set_player_info;
-	set_player_info.name = fake_player_name;
+	set_player_info.name = player_name;
 	set_player_info.score = final_score;
 
 
@@ -256,10 +265,10 @@ void Game_screen::final_scores_list(int final_score) {
 		keep_window_open();
 		exit(1);
 	}
-	cout << "what is entered into the txt file: " << endl;
+	//cout << "what is entered into the txt file: " << endl;
 	for (int i = sort_scores.size() - 1; i >= 0; --i) {
 		new_score_list << sort_scores[i].name << " " << sort_scores[i].score << endl << endl;
-		cout << sort_scores[i].name << "   " << sort_scores[i].score << endl;
+		//cout << sort_scores[i].name << "   " << sort_scores[i].score << endl;
 	}
 
 	//writes the new list of player names and the scores into the file

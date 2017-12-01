@@ -7,26 +7,30 @@
 #include "Project_window.h"
 #include "Player_score.h"
 
+//Create the screen which the game is played on as well as the actual game itself
+
 struct Game_screen : public Project_window {
 
-	Game_screen(Point xy, int w, int h, const string& title, int difficulty, string user);
+	Game_screen(Point xy, int w, int h, const string& title, int difficulty, string user); //Constructor for the game window
 
-	void set_difficulty(int diff);
+	void set_difficulty(int diff); //Load up the correct tiles for the difficulty chosen
 	int get_score();
-	void pseudo_swap(int val);
+	void pseudo_swap(int val); //false swap function that emulates a tile movement for calculating the manhattan distance
 	int locate_tile(int x, int y);
 	int locate_tile(int tile_number);
-	void hint();
-	void number_right();
-	vector<player_score> pulling_scores();
+	void hint(); //Recommend a move to the player based on manhattan distance
+	void number_right(); //The number of tiles in the incorrect position. Slightly misleading function name.
+	void update_highscores();
+	string player_name;
+	vector<player_score> pulling_scores(); //Vector of player scores of the leaderboard
 	vector<string> leaderboard();
 	void tile(int tile_num);
 	void final_scores_list(int final_score);
-	void check_game_over();
-	void swap(int val);
-	void load_values();
-	void order_tiles();
-	void game_init();
+	void check_game_over(); //Check if counter is zero
+	void swap(int val); //switches positions between tiles
+	void load_values(); 
+	void order_tiles(); //Puts the tiles in the correct place on the game window
+	void game_init(); //Game initializer
 
 private:
 	int score;
@@ -36,6 +40,7 @@ private:
 	Vector_ref<Tile_button> tile_bag;
 	Vector_ref<Tile_button> tiles;
 
+	//The order of numbers on the tiles for different difficulty levels
 	vector<int> numbers;
 	vector<int> ten_nums = { 1, 5, 9, 13, 2, 6, 10, 14, 3, 12, 0, 8, 4, 7, 15, 11 };
 	vector<int> twenty_nums = { 1, 5, 9, 13, 6, 0, 10, 15, 3, 2, 14, 12, 4, 11, 7, 8 };
@@ -45,7 +50,7 @@ private:
 	Button hint_button;
 	Text advice;
 	Text moves = Text{ Point{ 360,128 }, to_string(difficulty) };
-	Text right = Text{ Point{ 360, 148 }, "##" };
+	Text right = Text{ Point{ 360, 148 }, "##" }; //number of tiles in the correct position
 	Text leader_title = Text{ Point{ 550,200 }, "Leaderboard" };
 	Text first = Text{ Point{ 550,250 }, leaderboard()[0] };
 	Text second = Text{ Point{ 550,300 }, leaderboard()[1] };
