@@ -3,8 +3,8 @@
 Game_screen::Game_screen(Point xy, int w, int h, const string& title, int difficulty, string user)
 	:Project_window{ xy,w,h,title },
 	difficulty{ difficulty },
-	hint_button{ Point(360,10), 160, 100, "Hint", [](Address, Address pw) {reference_to<Game_screen>(pw).hint(); } },
-	advice{ Point{ 360, 30 }, "A helpful hint if you click the button" }
+	hint_button{ Point(90+20,720-90-24-12), 140, 24, "I need a hint!", [](Address, Address pw) {reference_to<Game_screen>(pw).hint(); } },
+	advice{ Point{ 90+20+140+24,720-90-24+5 }, "A helpful hint if you click that button" }
 {
 	attach(leaderboard_username);
 	set_username(user);

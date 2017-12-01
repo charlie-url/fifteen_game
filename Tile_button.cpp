@@ -2,11 +2,11 @@
 
 
 Tile_button::Tile_button(int x_coord, int y_coord, int number, Callback cb)
-	:Button{ Point(100 + (100 * x_coord),200 + (100 * y_coord)),100, 100, to_string(number), cb },
-	red_tile{ Point(100 + (100 * x_coord),200 + (100 * y_coord)),"img/red.jpg" },
-	green_tile{ Point(100 + (100 * x_coord),200 + (100 * y_coord)),"img/green.jpg" },
-	blank_tile{ Point(100 + (100 * x_coord),200 + (100 * y_coord)),"img/empty.jpg" },
-	tile_label{ Point(100 + 50 + (100 * x_coord)-(3*(exp2(number/10))),200 + (100 * y_coord)+(55)),to_string(number) },
+	:Button{ Point(90 + (100 * x_coord),200-20 + (100 * y_coord)),100, 100, to_string(number), cb },
+	red_tile{ Point(90 + (100 * x_coord),200-20 + (100 * y_coord)),"img/red.jpg" },
+	green_tile{ Point(90 + (100 * x_coord),200-20 + (100 * y_coord)),"img/green.jpg" },
+	blank_tile{ Point(90 + (100 * x_coord),200-20 + (100 * y_coord)),"img/empty.jpg" },
+	tile_label{ Point(90 + 50 + (100 * x_coord)-(3*(exp2(number/10))),200-20 + (100 * y_coord)+(55)),to_string(number) },
 	x_coord{ x_coord },
 	y_coord{ y_coord },
 	number{ number }
