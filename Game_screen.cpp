@@ -161,7 +161,8 @@ void Game_screen::number_right() {
 	}
 	right.set_label(to_string(num_right));
 }
-
+//update highscores rewrites the text labels for the top 5 leaderboard if the
+//current player wants to replay the game
 void Game_screen::update_highscores() {
 	vector<player_score> new_scores = pulling_scores();
 	first.set_label(new_scores[0].name + "  " + to_string(new_scores[0].score));
@@ -171,7 +172,8 @@ void Game_screen::update_highscores() {
 	fifth.set_label(new_scores[4].name + "  " + to_string(new_scores[4].score));
 }
 
-
+//pulling scores opens the txt file containing all the names and scores and puts them
+//into a vector named original_scores, and returns that vector.
 vector<player_score> Game_screen::pulling_scores() {
 	vector<player_score> original_scores;
 	ifstream Scores;
@@ -206,7 +208,8 @@ vector<player_score> Game_screen::pulling_scores() {
 	return original_scores;
 
 }
-
+//combines the first 5 names and scores into 5 strings
+//the 5 strings will be put into a vector, and then used for the leaderboard
 vector<string> Game_screen::leaderboard() {
 	vector<string>top_5;
 
@@ -233,10 +236,14 @@ void Game_screen::tile(int tile_num) {
 }
 
 
+//the final score after count = 0 is loaded in
 void Game_screen::final_scores_list(int final_score) {
 	string player_name = username.lab;
+	//the current player's name is pulled from the Text username's label
+	
 	vector<player_score>sort_scores = pulling_scores();
-
+	//it's combined with pulling_scores vector, and then sorted using a bool operator.
+	
 	player_score set_player_info;
 	set_player_info.name = player_name;
 	set_player_info.score = final_score;
@@ -244,6 +251,7 @@ void Game_screen::final_scores_list(int final_score) {
 
 	sort_scores.push_back(set_player_info);
 	sort(sort_scores.begin(), sort_scores.end());
+	//uses bool operator to sort the vector by score
 
 	ofstream new_score_list;
 	switch (difficulty) {
