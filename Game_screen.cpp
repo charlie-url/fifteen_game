@@ -160,9 +160,19 @@ void Game_screen::number_right() {
 	right.set_label(to_string(num_right));
 }
 
+void Game_screen::update_highscores() {
+	vector<player_score> new_scores = pulling_scores();
+	first.set_label(new_scores[0].name + "  " + to_string(new_scores[0].score));
+	second.set_label(new_scores[1].name + "  " + to_string(new_scores[1].score));
+	third.set_label(new_scores[2].name + "  " + to_string(new_scores[2].score));
+	fourth.set_label(new_scores[3].name + "  " + to_string(new_scores[3].score));
+	fifth.set_label(new_scores[4].name + "  " + to_string(new_scores[4].score));
+}
+
+
 vector<player_score> Game_screen::pulling_scores() {
 	vector<player_score> original_scores;
-f	ifstream Scores;
+	ifstream Scores;
 	switch (difficulty) {
 	case 10:
 		Scores.open("usr/Scores_list_10.txt");
