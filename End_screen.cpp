@@ -7,7 +7,10 @@
 		//display final score to user and give player option to play again
 		score.set_font_size(24);
 		attach(score);
+		attach(username);
 		set_username(user);
+		username.set_font_size(24);
+		username.move(64,-360);
 		attach(new_game_button);
 	}
 

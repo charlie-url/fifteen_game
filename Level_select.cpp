@@ -10,7 +10,6 @@
 		choose_text{ Text{ Point{ 360 - (20 * 15) / 2,90 + 64 },"Choose a difficulty:" } }
 	{
 		//attach difficulty options to the screen
-		attach(username);
 		set_username(user);
 		attach(ten_button);
 		attach(twenty_button);

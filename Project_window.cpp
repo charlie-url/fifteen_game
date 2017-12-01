@@ -7,7 +7,7 @@
 		:Window{ xy,w,h,title },
 		username{ Text(Point(((720-180)/2)-12,(720-90-3)),"username") },
 		quit_button{ Point{ 90,90 }, 70, 24, "Quit",[](Address, Address pw) {reference_to<Project_window>(pw).quit(); } },
-		leaderboard_username{ Text(Point(550,525), "username") },
+		leaderboard_username{ Text(Point(720-120-(5*12)-20,90+128+64+300), "username") },
 		button_pushed{ false },
 		state{ Game_state(Default) }
 	{
@@ -26,7 +26,6 @@
 	Game_state Project_window::wait_for_button() {//returns enum for next window to open
 		make_current();
 		show();
-		cout << label() << endl;
 		while (!button_pushed) {
 			Fl::wait();
 		}
