@@ -22,6 +22,8 @@ Game_screen::Game_screen(Point xy, int w, int h, const string& title, int diffic
 	attach(right);
 	attach(hint_button);
 	attach(advice);
+	attach(move_disp);
+	attach(right_disp);
 	game_init();
 }
 

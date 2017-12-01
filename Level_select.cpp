@@ -16,7 +16,6 @@
 		attach(twenty_button);
 		attach(forty_button);
 		attach(eighty_button);
-		attach(username);
 		choose_text.set_font_size(32);
 		attach(choose_text);
 

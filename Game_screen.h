@@ -57,6 +57,8 @@ private:
 	Text third = Text{ Point{ 720-120-(5*12)-20,90+128+64+150}, leaderboard()[2] };
 	Text fourth = Text{ Point{ 720-120-(5*12)-20,90+128+64+200 }, leaderboard()[3] };
 	Text fifth = Text{ Point{ 720-120-(5*12)-20,90+128+64+250 }, leaderboard()[4] };
+	Text move_disp = Text{ Point{ 240-(5*18)/2, 90+24+48-14 }, "Moves Remaining" };
+	Text right_disp = Text{ Point{ 480-(5*25)/2, 90+24+48-14 }, "Tiles Placed Correctly" };
 };
 
 
