@@ -162,7 +162,7 @@ void Game_screen::number_right() {
 
 vector<player_score> Game_screen::pulling_scores() {
 	vector<player_score> original_scores;
-	ifstream Scores;
+f	ifstream Scores;
 	switch (difficulty) {
 	case 10:
 		Scores.open("usr/Scores_list_10.txt");
@@ -222,7 +222,7 @@ void Game_screen::tile(int tile_num) {
 
 
 void Game_screen::final_scores_list(int final_score) {
-	cout << "name: " << username.lab << endl;
+	string player_name = username.lab;
 	vector<player_score>sort_scores = pulling_scores();
 
 	player_score set_player_info;
