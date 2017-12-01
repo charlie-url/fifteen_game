@@ -63,7 +63,7 @@ void Game_screen::pseudo_swap(int val) {
 		temp_y = tiles[empty].y();
 		tiles[empty].pseudo_set_xy(tiles[val].x(), tiles[val].y());
 		tiles[val].pseudo_set_xy(temp_x, temp_y);
-		//cout << "\tinvisible move of tiles" << endl;
+		
 	}
 }
 
@@ -71,7 +71,6 @@ int Game_screen::locate_tile(int x, int y) {
 	//returns the location in the array of the tile at (x,y)
 	for (int i = 0; i < tiles.size(); ++i) {
 		if (tiles[i].x() == x && tiles[i].y() == y) {
-			//cout << "tile found at location (" << x << ", " << y << ")" << endl;
 			return i;
 		}
 	}
@@ -81,7 +80,6 @@ int Game_screen::locate_tile(int x, int y) {
 int Game_screen::locate_tile(int tile_number) {
 	for (int i = 0; i < 16; ++i) {
 		if (tiles[i].val() == tile_number) {
-			//cout << "tile found at location " << i << endl;
 			return i;
 		}
 	}
@@ -226,9 +224,6 @@ void Game_screen::tile(int tile_num) {
 		}
 	}
 
-	cout << "The tile you clicked is " << tile_num;
-	cout << " (" << tiles[place].y() << "," << tiles[place].x() << ")" << endl;
-	cout << "Manhattan: " << tiles[place].manhattan() << endl;
 	swap(place);
 }
 
@@ -267,10 +262,8 @@ void Game_screen::final_scores_list(int final_score) {
 		keep_window_open();
 		exit(1);
 	}
-	//cout << "what is entered into the txt file: " << endl;
 	for (int i = sort_scores.size() - 1; i >= 0; --i) {
 		new_score_list << sort_scores[i].name << " " << sort_scores[i].score << endl << endl;
-		//cout << sort_scores[i].name << "   " << sort_scores[i].score << endl;
 	}
 
 	//writes the new list of player names and the scores into the file
