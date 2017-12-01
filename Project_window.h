@@ -18,9 +18,11 @@ struct Project_window : Graph_lib::Window {
 	Game_state wait_for_button();
 	void set_state(Game_state new_state);
 	void quit();
-
-protected:
 	Text username;
+protected:
+	
+	string player_name;
+	Text leaderboard_username;
 	Button quit_button;
 	bool button_pushed;
 	Game_state state;

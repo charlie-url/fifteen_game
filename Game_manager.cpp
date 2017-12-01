@@ -33,21 +33,30 @@
 				break;
 			case (Game_state(Game_10)):
 				game.show();
+				game.update_highscores();
+				game.set_username(username);
 				game.set_difficulty(10);
 				current = game.wait_for_button();
+				cout << game.username.lab << endl;
 				break;
 			case (Game_state(Game_20)):
 				game.show();
+				game.update_highscores();
+				game.set_username(username);
 				game.set_difficulty(20);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_40)):
 				game.show();
+				game.update_highscores();
+				game.set_username(username);
 				game.set_difficulty(40);
 				current = game.wait_for_button();
 				break;
 			case (Game_state(Game_80)):
 				game.show();
+				game.update_highscores();
+				game.set_username(username);
 				game.set_difficulty(80);
 				current = game.wait_for_button();
 				break;

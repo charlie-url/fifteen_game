@@ -20,6 +20,8 @@ struct Game_screen : public Project_window {
 	int locate_tile(int tile_number);
 	void hint(); //Recommend a move to the player based on manhattan distance
 	void number_right(); //The number of tiles in the incorrect position. Slightly misleading function name.
+	void update_highscores();
+	string player_name;
 	vector<player_score> pulling_scores(); //Vector of player scores of the leaderboard
 	vector<string> leaderboard();
 	void tile(int tile_num);

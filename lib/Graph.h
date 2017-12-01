@@ -269,8 +269,9 @@ struct Text : Shape {
 
     void set_font_size(int s) { fnt_sz = s; }
     int font_size() const { return fnt_sz; }
+	string lab;
 private:
-    string lab;    // label
+        // label
     Font fnt;
     int fnt_sz;
 };
